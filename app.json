@@ -4,9 +4,9 @@
     "slug": "NoExcusasCoaches",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon":  "./assets/icon-noexlogo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icon-noexlogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
