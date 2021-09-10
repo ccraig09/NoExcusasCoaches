@@ -260,6 +260,22 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
+        addPoints: async (userInfo, lastSignIn) => {
+          const increment = firebase.firestore.FieldValue.increment(1);
+
+          try {
+            await db.doc(userInfo.userId).set(
+              {
+                lastSignIn: lastSignIn,
+                points: increment,
+                lastSignInTime: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            console.log(e);
+          }
+        },
 
         qUpdate: async (newQ, code) => {
           try {

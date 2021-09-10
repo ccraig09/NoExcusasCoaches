@@ -24,6 +24,8 @@ import { AuthContext } from "../navigation/AuthProvider";
 import firebase from "../components/firebase";
 import Colors from "../constants/Colors";
 import { useFocusEffect } from "@react-navigation/native";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
 
 const ScanScreen = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
@@ -31,9 +33,11 @@ const ScanScreen = ({ navigation }) => {
   const [scannedClient, setScannedClient] = useState();
   const [hasPermission, setHasPermission] = useState(null);
   const [scannedModal, setScannedModal] = useState(false);
-  const { user, createProduct, editedProduct } = useContext(AuthContext);
+  const { user, createProduct, editedProduct, addPoints } =
+    useContext(AuthContext);
   const [clientList, setClientList] = useState([]);
   const [sound, setSound] = React.useState();
+  const moment = extendMoment(Moment);
 
   useEffect(() => {
     // loadDetails();
@@ -65,6 +69,8 @@ const ScanScreen = ({ navigation }) => {
                   createdAt,
                   plan,
                   startDate,
+                  points,
+                  lastSignIn,
                   endDate,
                   goal,
                   history,
@@ -78,7 +84,9 @@ const ScanScreen = ({ navigation }) => {
                   userImg: userImg,
                   email: email,
                   Phone: Phone,
+                  lastSignIn: lastSignIn,
                   plan: plan,
+                  points: points,
                   startDate: startDate,
                   endDate: endDate,
                   goal: goal,
@@ -119,7 +127,17 @@ const ScanScreen = ({ navigation }) => {
       console.log("Playing Sound");
       await sound.playAsync();
     }
-    playSound();
+    async function playError() {
+      console.log("Loading Sound");
+      const { sound } = await Audio.Sound.createAsync(
+        require("../assets/errorBeep.mp3")
+      );
+      setSound(sound);
+
+      console.log("Playing Sound");
+      await sound.playAsync();
+    }
+
     // Alert.alert(`Bienvenido ${scannedUser.FirstName}`, `Puntos acumulados: 9`, [
     //   {
     //     text: "A Entrenar!",
@@ -129,9 +147,19 @@ const ScanScreen = ({ navigation }) => {
     //     },
     //   },
     // ]);
-    navigation.navigate("Client", {
-      data: scannedUser,
-    });
+    const date = moment().format("MM/DD/YYYY");
+    console.log(date);
+    if (date === scannedUser.lastSignIn) {
+      console.log("ehh this the same date bruh");
+      playError();
+      Alert.alert("Ya iniciaste tu sesion por hoy");
+    } else {
+      playSound();
+      await addPoints(scannedUser, date);
+      navigation.navigate("Client", {
+        data: scannedUser,
+      });
+    }
     setScanned(false);
   };
 

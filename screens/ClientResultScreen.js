@@ -42,7 +42,9 @@ const ClientResultScreen = ({ route, navigation }) => {
         {/* <Text>{route.params ? route.params.userId : user.uid}</Text> */}
         <Text style={styles.aboutUser}>{selectedClient.country}</Text>
         <View style={styles.userBtnWrapper}>
-          <Text style={styles.userInfoTitle}>Puntos: 9</Text>
+          <Text style={styles.userInfoTitle}>
+            Puntos: {selectedClient.points + 1}
+          </Text>
           <LottieView
             style={styles.plusLottie}
             source={require("../assets/lottie/plusLottie.json")}
