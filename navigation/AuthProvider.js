@@ -277,22 +277,18 @@ export const AuthProvider = ({ children }) => {
           }
         },
 
-        qUpdate: async (newQ, code) => {
+        addToken: async (expoPushToken) => {
           try {
-            console.log("updating quantity amount to Firebase");
+            console.log("uploading expo token", expoPushToken);
 
-            await db
-              .doc(user.uid)
-              .collection("Member Products")
-              .doc(code)
-              .update(
-                {
-                  Quantity: newQ,
+            await dbC.doc(user.uid).set(
+              {
+                expoPushToken,
 
-                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                }
-                // { merge: true }
-              );
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
           } catch (e) {
             console.log(e);
           }

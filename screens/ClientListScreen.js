@@ -324,7 +324,7 @@ const ClientListScreen = ({ navigation }) => {
                   userName
                 )
               ) : (
-                "Coach " + userInfo.FirstName
+                userInfo.FirstName.split(" ")[0]
               )}
             </Text>
             {/* <Text style={styles.expire}>Desde:</Text>

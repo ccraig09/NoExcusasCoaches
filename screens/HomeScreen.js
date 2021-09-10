@@ -1,28 +1,39 @@
-import React, { useState, useCallback, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useContext,
+  useRef,
+} from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  Alert,
+  Platform,
   FlatList,
   SafeAreaView,
   StatusBar,
   Dimensions,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import dayjs from "dayjs";
 import styled from "styled-components/native";
 import ClassItem from "../components/ClassItem";
 import { AuthContext } from "../navigation/AuthProvider";
 import firebase from "../components/firebase";
+import Constants from "expo-constants";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "../constants/Colors";
 import { Avatar, ListItem } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import * as Notifications from "expo-notifications";
 import NotificationButton from "../components/UI/NotificationButton";
+import * as Linking from "expo-linking";
 
 const currentHour = new Date().getHours();
 
@@ -35,30 +46,154 @@ const greetingMessage =
     ? "Buenas Noches" // if for some reason the calculation didn't work
     : "Bienvenido";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => {
+    return {
+      shouldShowAlert: true,
+    };
+  },
+});
+
 const HomeScreen = ({ navigation }) => {
+  const { user, addToken } = useContext(AuthContext);
   const [coachList, setCoachList] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
   const [Level1, setLevel1] = useState([]);
   const [userName, setUserName] = useState();
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState(null);
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
-  const { user, deleteProduct } = useContext(AuthContext);
   //   const db = firebase.firestore().collection("Members");
 
   const width = Dimensions.get("window").width;
 
   const keyExtractor = (item, index) => index.toString();
 
+  useEffect(() => {
+    dailyNotification();
+    registerForPushNotificationsAsync().then((token) => {
+      setExpoPushToken(token);
+      addToken(token);
+      // console.log();
+    });
+  }, []);
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        Alert.alert(
+          "Alerta",
+          "No recibirá noticias si no habilita las notificaciones. Si desea recibir notificaciones, habilitelas desde configuración.",
+          [
+            { text: "Cancel" },
+            // If they said no initially and want to change their mind,
+            // we can automatically open our app in their settings
+            // so there's less friction in turning notifications on
+            {
+              text: "Activar Notificaciones",
+              onPress: () =>
+                Platform.OS === "ios"
+                  ? Linking.openURL("app-settings:")
+                  : Linking.openSettings(),
+            },
+          ]
+        );
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+    return token;
+  }
+
+  useEffect(() => {
+    const backgroundSubscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        // console.log("background", response);
+        // navigation.navigate("Edit");
+      });
+
+    const foregroundSubscription =
+      Notifications.addNotificationReceivedListener((notification) => {
+        console.log("foreground", notification);
+      });
+    return () => {
+      backgroundSubscription.remove();
+      foregroundSubscription.remove();
+    };
+  }, []);
+
+  const dailyNotification = () => {
+    // const coaches = coachList.map((code) => code.expoPushToken);
+    // console.log("cheses", coaches);
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Diario Frase Motivacional",
+        body: "Deeeenso con tooodo!",
+      },
+      trigger: {
+        // type: "daily",
+        hour: 18,
+        minute: 10,
+
+        repeats: true,
+      },
+    });
+  };
+  const triggerNotificationHandler = () => {
+    const coaches = coachList.map((code) => code.expoPushToken);
+    console.log("cheses", coaches);
+    // Notifications.scheduleNotificationAsync({
+    //   content: {
+    //     title: "My first local notification",
+    //     body: "this is the first local notification we are sending!",
+    //     data: userInfo,
+    //   },
+    //   trigger: {
+    //     seconds: 6,
+    //   },
+    // });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: coaches,
+        data: { extraData: "Some data" },
+        title: "Sent via the app",
+        body: "This push notification was sent via the app!",
+        badge: 7,
+      }),
+    });
+  };
+
   const renderItem = ({ item }) => (
-    // <View
-    //   style={{
-    //     minHeight: 70,
-    //     padding: 5,
-    //     flexDirection: "row",
-    //     alignItems: "center",
-    //   }}
-    // >
     <TouchableOpacity
       style={{
         minHeight: 70,
@@ -76,33 +211,9 @@ const HomeScreen = ({ navigation }) => {
       <Avatar
         rounded
         size={50}
-        // {!userInfo.userImg ? (
-        //   icon={{ name: "user", type: "font-awesome" }}
-        // }
-        // style={{ padding: 0 }}
         source={{ uri: `${item.userImg}` }}
-        onPress={() => {
-          // if (!userInfo.userImg) {
-          //   navigation.navigate("Edit");
-          // } else {
-          //   navigation.navigate("Profile");
-          // }
-        }}
-      >
-        {/* {!userInfo.userImg ? (
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("Edit");
-              }}
-            >
-              <Avatar.Accessory
-                name="pencil-alt"
-                type="font-awesome-5"
-                size={25}
-              />
-            </TouchableOpacity>
-          ) : null} */}
-      </Avatar>
+        onPress={() => {}}
+      ></Avatar>
       <View style={{ marginLeft: 5 }}>
         <Text style={{ fontWeight: "bold", fontSize: 26 }}>
           {item.FirstName + " "}
@@ -118,7 +229,6 @@ const HomeScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // console.log("loading home and user", user);
       const fetchCoaches = async () => {
         try {
           const list = [];
@@ -135,6 +245,7 @@ const HomeScreen = ({ navigation }) => {
                   email,
                   Phone,
                   createdAt,
+                  expoPushToken,
                   country,
                   userId,
                 } = doc.data();
@@ -147,15 +258,12 @@ const HomeScreen = ({ navigation }) => {
                   Phone: Phone,
                   country: country,
                   createdAt: createdAt,
+                  expoPushToken,
                   userId: userId,
                 });
               });
             });
           setCoachList(list);
-          //   console.log("coachlist?:", coachList);
-          // console.log("this the user?", user);
-          // console.log(fitnessClasses);
-          // setLevel1(fitnessClasses[0].Level1);
         } catch (e) {
           console.log(e);
         }
@@ -170,7 +278,7 @@ const HomeScreen = ({ navigation }) => {
             .get()
             .then((doc) => {
               if (doc.exists) {
-                console.log("Document data:", doc.data());
+                // console.log("Document data:", doc.data());
                 setUserInfo(doc.data());
               } else {
                 // doc.data() will be undefined in this case
@@ -202,12 +310,12 @@ const HomeScreen = ({ navigation }) => {
           flexDirection: "row",
           // justifyContent: "space-between",
           // paddingRight: 10,
-          paddingLeft: 20,
+          paddingLeft: 10,
         }}
       >
         <Avatar
           rounded
-          size={90}
+          size={80}
           // {!userInfo.userImg ? (
           icon={{ name: "user", type: "font-awesome" }}
           // }
@@ -241,7 +349,8 @@ const HomeScreen = ({ navigation }) => {
             paddingRight: 10,
             flex: 1,
             flexDirection: "row",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
+            // maxWidth: 120,
           }}
         >
           <View style={styles.displayName}>
@@ -270,33 +379,21 @@ const HomeScreen = ({ navigation }) => {
                   userName
                 )
               ) : (
-                "Coach " + userInfo.FirstName
+                userInfo.FirstName.split(" ")[0]
               )}
             </Text>
-            {/* <Text style={styles.expire}>Desde:</Text>
-            <Text style={styles.expire}>
-              {dayjs(userInfo.createdAt).format()}
-            </Text> */}
           </View>
-          {/* <View style={styles.qr}>
-            <Icon.Button
-              name="qr-code"
-              size={80}
-              color="black"
-              backgroundColor="#f0f3f5"
-              onPress={() => {
-                navigation.navigate("Qr");
-              }}
-            />
-          </View> */}
+
           <View style={styles.qr}>
             <Icon.Button
               name="qr-code"
-              size={80}
+              size={50}
               color="black"
               backgroundColor="#f0f3f5"
               onPress={() => {
-                navigation.navigate("Scan");
+                navigation.navigate("Scan", {
+                  coachList: coachList,
+                });
               }}
             />
           </View>
@@ -310,83 +407,21 @@ const HomeScreen = ({ navigation }) => {
               <Icon name="settings" size={24} color="black" />
             </TouchableOpacity>
           </View>
-          {/* </View> */}
         </View>
       </View>
 
       <View style={styles.TitleBar}></View>
+      <Button
+        title="Trigger Notification"
+        onPress={triggerNotificationHandler}
+      />
       <Subtitle>{"Coaches".toUpperCase()}</Subtitle>
       <FlatList
-        //   horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={coachList}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
-      {/* <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={coachList}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.userImg}
-              title={itemData.item.FirstName}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: sportsClasses,
-                });
-              }}
-            />
-          )}
-        /> */}
-      {/* <Subtitle>{"Deportes".toUpperCase()}</Subtitle>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={sportsClasses}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.Image}
-              title={itemData.item.Title}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: sportsClasses,
-                });
-              }}
-            />
-          )}
-        />
-        <Subtitle>{"Niños".toUpperCase()}</Subtitle>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={kidsClasses}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.Image}
-              title={itemData.item.Title}
-              //   price={itemData.item.price}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              //   image={itemData.item.image}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: kidsClasses,
-                });
-              }}
-            />
-          )}
-        /> */}
     </SafeAreaView>
   );
 };
