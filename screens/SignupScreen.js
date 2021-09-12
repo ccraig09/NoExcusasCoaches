@@ -19,8 +19,38 @@ const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { register, signUpWithGoogle } = useContext(AuthContext);
+
+  const signUpHandler = async () => {
+    setIsLoading(true);
+
+    await register(email, password);
+
+    setIsLoading(false);
+  };
+
+  const googleLoginHandler = async () => {
+    setIsLoading(true);
+
+    await signUpWithGoogle();
+
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return (
+      <LinearGradient
+        colors={["#ffffff", Colors.noExprimary]}
+        style={styles.gradient}
+      >
+        <View style={styles.container}>
+          <ActivityIndicator size="small" />
+        </View>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -59,10 +89,7 @@ const SignupScreen = ({ navigation }) => {
           secureTextEntry={true}
         />
 
-        <FormButton
-          buttonTitle="Registrar"
-          onPress={() => register(email, password)}
-        />
+        <FormButton buttonTitle="Registrar" onPress={() => signUpHandler()} />
 
         <View>
           <SocialButton
@@ -70,7 +97,9 @@ const SignupScreen = ({ navigation }) => {
             btnType="google"
             color="#de4d41"
             backgroundColor="#f5e7ea"
-            onPress={() => signUpWithGoogle()}
+            onPress={() => {
+              googleLoginHandler();
+            }}
           />
         </View>
 
@@ -109,7 +138,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   text: {
-    // fontFamily: "Kufam-SemiBoldItalic",
+    fontFamily: "Kufam-SemiBoldItalic",
     fontSize: 28,
     marginBottom: 10,
     color: "#051d5f",

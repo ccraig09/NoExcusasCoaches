@@ -47,29 +47,41 @@ const ClientDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.userBtnTxt}>Editar</Text>
           </TouchableOpacity>
         </View>
+        <View>
+          <Text style={styles.userInfoTitle}>
+            Puntos: {selectedClient.points}
+          </Text>
+        </View>
         <View style={styles.userInfoWrapper}></View>
         {/* </View> */}
         <View style={styles.userInfoItem}>
           <Text style={styles.userInfoTitle}>{selectedClient.Phone}</Text>
           <Text style={styles.userInfoTitle}>{selectedClient.email}</Text>
-          <Text style={styles.userInfoTitle}>Plan:</Text>
-          <Text style={styles.userInfoTitle}>{selectedClient.plan}</Text>
-          <Text style={styles.userInfoTitle}>Fecha de inicio:</Text>
-
-          <Text style={styles.userInfoTitle}>{selectedClient.startDate}</Text>
-          <Text style={styles.userInfoTitle}>Fecha de Vencimiento:</Text>
-
-          <Text style={styles.userInfoTitle}>{selectedClient.endDate}</Text>
-          <Text style={styles.userInfoTitle}>Metas:</Text>
-
-          <Text style={styles.userInfoTitle}>{selectedClient.goal}</Text>
-          <Text style={styles.userInfoTitle}>Deporte:</Text>
-
-          <Text style={styles.userInfoTitle}>{selectedClient.sport}</Text>
-          <Text style={styles.userInfoTitle}>History Clinica:</Text>
-
-          <Text style={styles.userInfoTitle}>{selectedClient.history}</Text>
-          <Text style={styles.userInfoTitle}>{selectedClient.userId}</Text>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>Plan:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.plan}</Text>
+          </View>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>Fecha de inicio:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.startDate}</Text>
+          </View>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>Fecha de Vencimiento:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.endDate}</Text>
+          </View>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>Metas:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.goal}</Text>
+          </View>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>Deporte:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.sport}</Text>
+          </View>
+          <View style={styles.listView}>
+            <Text style={styles.userInfoTitle}>History Clinica:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.history}</Text>
+          </View>
+          <Text style={styles.userInfoTitleId}>{selectedClient.userId}</Text>
           {/* <Text style={styles.userInfoTitle}>{selectedClient.email}</Text> */}
           {/* <Text style={styles.userInfoSubTitle}>Posts</Text> */}
         </View>
@@ -84,11 +96,16 @@ const ClientDetailsScreen = ({ route, navigation }) => {
 export default ClientDetailsScreen;
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: "#fff",
     // padding: 20,
     marginBottom: 20,
     marginTop: 20,
+  },
+  listView: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   userImg: {
     height: 150,
@@ -129,12 +146,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
-    marginVertical: 20,
+    marginVertical: 10,
   },
   userInfoItem: {
     justifyContent: "center",
   },
   userInfoTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 5,
+    textAlign: "center",
+  },
+  userInfoTitleId: {
+    color: "silver",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 5,

@@ -17,9 +17,9 @@ const ClientResultScreen = ({ route, navigation }) => {
   const selectedClient = data;
 
   useEffect(() => {
-    setTimeout(() => {
-      navigation.goBack();
-    }, 8000);
+    // setTimeout(() => {
+    //   navigation.goBack();
+    // }, 8000);
   }, []);
 
   return (
@@ -56,8 +56,16 @@ const ClientResultScreen = ({ route, navigation }) => {
         <View style={styles.userInfoItem}>
           <Text style={styles.userInfoTitle}>{selectedClient.Phone}</Text>
           <Text style={styles.userInfoTitle}>{selectedClient.email}</Text>
-          <Text style={styles.userInfoTitle}>Plan:</Text>
-          <Text style={styles.userInfoTitle}>{selectedClient.plan}</Text>
+          <View
+            style={{
+              // flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={styles.userInfoTitle}>Plan:</Text>
+            <Text style={styles.userInfoTitle}>{selectedClient.plan}</Text>
+          </View>
           <Text style={styles.userInfoTitle}>Fecha de inicio:</Text>
 
           <Text style={styles.userInfoTitle}>{selectedClient.startDate}</Text>
