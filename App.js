@@ -5,6 +5,7 @@ import Providers from "./navigation";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { LogBox } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
 
@@ -37,7 +38,9 @@ export default function App() {
   }
   return (
     // <Provider>
-    <Providers />
+    <SafeAreaProvider>
+      <Providers />
+    </SafeAreaProvider>
     // </Provider>
   );
 }

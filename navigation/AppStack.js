@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 // import { createDrawerNavigator } from "@react-navigation/drawer";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -12,14 +12,18 @@ import ClientResultScreen from "../screens/ClientResultScreen";
 import ScanScreen from "../screens/ScanScreen";
 import Colors from "../constants/Colors";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import EditClientScreen from "../screens/EditClientScreen";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
+import EditClientScreen from "../screens/EditClientScreen";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+// console.log("get height", StatusBar.currentHeight);
 // import ClientDetailsScreen from "../screens/ClientDetailsScreen";
 // import CoachDetailsScreen from "../screens/ProfileScreen";
 // import ProfileScreen from "../screens/ProfileScreen";
 
 const Stack = createStackNavigator();
-const Tab = createMaterialTopTabNavigator();
+const Tab = createBottomTabNavigator();
 
 // const Tab = createBottomTabNavigator();
 // const Drawer = createDrawerNavigator();
@@ -93,9 +97,40 @@ let routeName;
 
 const AppStack = () => {
   return (
-    <Tab.Navigator screenOptions={({ route }) => ({})}>
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Clientes" component={ClientStack} />
+    <Tab.Navigator
+      tabBarOptions={{
+        activeTintColor: Colors.noExprimary,
+        // headerShown: true,
+        labelStyle: { fontSize: 12 },
+      }}
+      style={{ backgroundColor: "blue" }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+        options={{
+          tabBarLabel: "Inicio",
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <Icon name="ios-home" color={color} size={30} />
+            ) : (
+              <Icon name="ios-home" color={color} size={26} />
+            ),
+        }}
+      />
+      <Tab.Screen
+        name="Clientes"
+        component={ClientStack}
+        options={{
+          tabBarLabel: "Clientes",
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <Icon name="people" color={color} size={30} />
+            ) : (
+              <Icon name="people" color={color} size={26} />
+            ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

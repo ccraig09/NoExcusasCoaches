@@ -246,7 +246,7 @@ const ClientListScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.Container}>
-      <StatusBar hidden={true} />
+      <StatusBar hidden={false} />
 
       <View
         style={{
@@ -373,76 +373,11 @@ const ClientListScreen = ({ navigation }) => {
       <View style={styles.TitleBar}></View>
       <Subtitle>{"Clientes".toUpperCase()}</Subtitle>
       <FlatList
-        //   horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={clientList}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
-      {/* <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={coachList}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.userImg}
-              title={itemData.item.FirstName}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: sportsClasses,
-                });
-              }}
-            />
-          )}
-        /> */}
-      {/* <Subtitle>{"Deportes".toUpperCase()}</Subtitle>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={sportsClasses}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.Image}
-              title={itemData.item.Title}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: sportsClasses,
-                });
-              }}
-            />
-          )}
-        />
-        <Subtitle>{"Niños".toUpperCase()}</Subtitle>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={kidsClasses}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.Image}
-              title={itemData.item.Title}
-              //   price={itemData.item.price}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              //   image={itemData.item.image}
-              onClassClick={() => {
-                navigation.navigate("Section", {
-                  classId: itemData.item.key,
-                  classes: kidsClasses,
-                });
-              }}
-            />
-          )}
-        /> */}
     </SafeAreaView>
   );
 };

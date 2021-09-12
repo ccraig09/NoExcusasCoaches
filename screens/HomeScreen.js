@@ -302,7 +302,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.Container}>
-      <StatusBar hidden={true} />
+      <StatusBar hidden={false} />
       <View
         style={{
           width: width,
