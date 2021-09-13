@@ -6,6 +6,8 @@ import Icon from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import ClientListScreen from "../screens/ClientListScreen";
+import InformationScreen from "../screens/InformationScreen";
+import PromoDetailScreen from "../screens/PromoDetailScreen";
 import CoachDetailsScreen from "../screens/CoachDetailsScreen";
 import ClientDetailsScreen from "../screens/ClientDetailsScreen";
 import ClientResultScreen from "../screens/ClientResultScreen";
@@ -131,10 +133,43 @@ const AppStack = () => {
             ),
         }}
       />
+      <Tab.Screen
+        name="Informacion"
+        component={InformationStack}
+        options={{
+          tabBarLabel: "Informacion",
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <Icon name="information-circle" color={color} size={30} />
+            ) : (
+              <Icon name="information-circle" color={color} size={26} />
+            ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
 
+const InformationStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Information"
+      component={InformationScreen}
+      options={({ navigation }) => ({
+        title: "Subir Informacion",
+        headerShown: true,
+      })}
+    />
+    <Stack.Screen
+      name="PromoDetail"
+      component={PromoDetailScreen}
+      options={({ navigation }) => ({
+        title: "Detalles",
+        headerShown: true,
+      })}
+    />
+  </Stack.Navigator>
+);
 const ClientStack = () => (
   <Stack.Navigator initialRouteName="Home">
     <Stack.Screen

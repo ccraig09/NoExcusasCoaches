@@ -20,7 +20,7 @@ import {
   Button,
 } from "react-native";
 import dayjs from "dayjs";
-import styled from "styled-components/native";
+import styled from "styled-components";
 import ClassItem from "../components/ClassItem";
 import { AuthContext } from "../navigation/AuthProvider";
 import firebase from "../components/firebase";
@@ -188,7 +188,7 @@ const HomeScreen = ({ navigation }) => {
         data: { extraData: "Some data" },
         title: "Sent via the app",
         body: "This push notification was sent via the app!",
-        badge: 7,
+        // badge: 7,
       }),
     });
   };

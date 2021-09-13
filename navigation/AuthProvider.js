@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const db = firebase.firestore().collection("Members");
   const dbP = firebase.firestore().collection("Products");
   const dbC = firebase.firestore().collection("Coaches");
+  const dbPromo = firebase.firestore().collection("Promos");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -388,6 +389,26 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
+        uploadPromo: async (promoData, userImg) => {
+          try {
+            await dbPromo.doc().set(
+              {
+                Caption: promoData.Title,
+                Subtitle: promoData.Subtitle,
+                Usuario: user.uid,
+                Description: promoData.Description,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+
+                userImg,
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         editClient: async (userInfo, userImg) => {
           try {
             await db.doc(userInfo.userId).set(
@@ -410,6 +431,32 @@ export const AuthProvider = ({ children }) => {
             const errorMes = firebaseErrors[e.code];
             alert(errorMes);
             console.log(errorMes);
+          }
+        },
+        deletePromoImage: async (key, title) => {
+          console.log("Deleting Image", title);
+          try {
+            await firebase
+              .storage()
+              .ref()
+              .child(`PromoImages/${title}/PromoImage`)
+              .delete()
+              .then(
+                dbPromo
+                  .doc(key)
+                  .delete()
+                  .then(() => {
+                    console.log("Document successfully deleted!");
+                  })
+                  .catch((error) => {
+                    console.error("Error removing document: ", error);
+                  })
+              );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+            console.log(e);
           }
         },
         addPoints: async (userInfo, lastSignIn) => {
