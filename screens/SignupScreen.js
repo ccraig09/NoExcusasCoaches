@@ -6,6 +6,7 @@ import {
   Image,
   Platform,
   StyleSheet,
+  ActivityIndicator,
   ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";

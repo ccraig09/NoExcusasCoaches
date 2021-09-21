@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 400,
-    position: "absolute",
+    height: "100%",
+    // position: "absolute",
     top: 0,
     left: 0,
   },

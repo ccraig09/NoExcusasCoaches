@@ -28,7 +28,6 @@ import PromoItem from "../components/PromoItem";
 import { extendMoment } from "moment-range";
 import Moment from "moment";
 import * as Notifications from "expo-notifications";
-
 import { AuthContext } from "../navigation/AuthProvider";
 import styled from "styled-components";
 import ActionSheet from "react-native-actions-sheet";
@@ -43,19 +42,27 @@ const InformationScreen = ({ navigation }) => {
   const { user, logout, uploadPromo, deletePromoImage } =
     useContext(AuthContext);
   const [image, setImage] = useState(null);
+  const [type, setType] = useState("");
+  const [notify, setNotify] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [userInfo, setUserInfo] = useState([]);
   const [promolist, setPromoList] = useState([]);
+  const [premiolist, setPremioList] = useState([]);
   const [promoData, setPromoData] = useState([]);
+  const [notifyTitle, setNotifyTitle] = useState("");
+  const [notifySubtitle, setNotifySubtitle] = useState("");
   const [baseStartDate, setBaseStartDate] = useState(false);
   const [picked, setPicked] = useState();
   const [showPicker, setShowPicker] = useState(false);
   const [clientList, setClientList] = useState([]);
+  const [mustSpin, setMustSpin] = useState(false);
+  const [prizeNumber, setPrizeNumber] = useState(0);
 
   useFocusEffect(
     React.useCallback(() => {
       const fetchPromos = async () => {
+        setType("");
         setImage(null);
         setPromoData({});
         try {
@@ -66,19 +73,27 @@ const InformationScreen = ({ navigation }) => {
             .get()
             .then((querySnapshot) => {
               querySnapshot.forEach((doc) => {
-                const { Caption, Subtitle, Usuario, userImg, Description } =
-                  doc.data();
+                const {
+                  Caption,
+                  Subtitle,
+                  Usuario,
+                  userImg,
+                  Type,
+                  Description,
+                } = doc.data();
                 list.push({
                   key: doc.id,
                   Caption: Caption,
                   Subtitle: Subtitle,
                   Description: Description,
                   Usuario: Usuario,
+                  Type: Type,
                   userImg: userImg,
                 });
               });
             });
-          setPromoList(list);
+          setPromoList(list.filter((data) => data.Type == "Promocion"));
+          setPremioList(list.filter((data) => data.Type == "Premio"));
         } catch (e) {
           console.log(e);
         }
@@ -130,11 +145,6 @@ const InformationScreen = ({ navigation }) => {
               });
             });
           setClientList(list);
-          //   setInMemoryClientes(list);
-          //   console.log("coachlist?:", coachList);
-          // console.log("this the user?", user);
-          // console.log(fitnessClasses);
-          // setLevel1(fitnessClasses[0].Level1);
         } catch (e) {
           console.log(e);
         }
@@ -146,6 +156,7 @@ const InformationScreen = ({ navigation }) => {
 
   const fetchPromos = async () => {
     console.log("loading promos");
+    setType("");
     setImage(null);
     setPromoData({});
     try {
@@ -156,7 +167,7 @@ const InformationScreen = ({ navigation }) => {
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            const { Caption, Subtitle, Usuario, userImg, Description } =
+            const { Caption, Subtitle, Usuario, userImg, Type, Description } =
               doc.data();
             list.push({
               key: doc.id,
@@ -164,11 +175,13 @@ const InformationScreen = ({ navigation }) => {
               Subtitle: Subtitle,
               Description: Description,
               Usuario: Usuario,
+              Type: Type,
               userImg: userImg,
             });
           });
         });
-      setPromoList(list);
+      setPromoList(list.filter((data) => data.Type == "Promocion"));
+      setPremioList(list.filter((data) => data.Type == "Premio"));
     } catch (e) {
       console.log(e);
     }
@@ -204,6 +217,44 @@ const InformationScreen = ({ navigation }) => {
     });
   };
 
+  const clientNotificationHandler = async () => {
+    await clientNotification();
+    Alert.alert("Notification Enviado!", "");
+    setNotify(false);
+    setNotifyTitle("");
+    setNotifySubtitle("");
+  };
+
+  const clientNotification = () => {
+    const clients = clientList.map((code) => code.expoPushToken);
+    console.log("Clients list", clients);
+    // Notifications.scheduleNotificationAsync({
+    //   content: {
+    //     title: "My first local notification",
+    //     body: "this is the first local notification we are sending!",
+    //     data: userInfo,
+    //   },
+    //   trigger: {
+    //     seconds: 6,
+    //   },
+    // });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: clients,
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+  };
+
   const deletePromoHandler = (key, title) => {
     Alert.alert("Borrar Promo?", "", [
       {
@@ -220,7 +271,6 @@ const InformationScreen = ({ navigation }) => {
       },
     ]);
   };
-
   const cancelUploadHandler = () => {
     Alert.alert("Borrar Promo?", "", [
       {
@@ -279,7 +329,7 @@ const InformationScreen = ({ navigation }) => {
     //   imageUrl = null;
     // }
 
-    await uploadPromo(promoData, imageUrl);
+    await uploadPromo(promoData, imageUrl, type);
     triggerNotificationHandler();
     Alert.alert("Promocion Subido!", "Tu promocion se ha subido exitosamente!");
     fetchPromos();
@@ -329,6 +379,10 @@ const InformationScreen = ({ navigation }) => {
       return null;
     }
   };
+
+  const loadDetails = () => {
+    fetchPromos();
+  };
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -336,7 +390,7 @@ const InformationScreen = ({ navigation }) => {
           <RefreshControl
             colors={["#FF4949", "#FF4949"]}
             // refreshing={isRefreshing}
-            onRefresh={fetchPromos}
+            onRefresh={loadDetails}
           />
         }
       >
@@ -367,25 +421,39 @@ const InformationScreen = ({ navigation }) => {
             <Text style={styles.panelButtonTitle}>Cancelar</Text>
           </TouchableOpacity>
         </ActionSheet>
+
         {image == null && (
-          <Button
-            title="Subir Promocion"
-            onPress={() => {
-              Alert.alert("Subir nuevo promocion?", "", [
-                {
-                  text: "No",
-                  style: "destructive",
-                },
-                {
-                  text: "Si",
-                  style: "default",
-                  onPress: () => {
-                    actionSheetRef.current?.setModalVisible();
+          <View>
+            <Button
+              title="Subir Promocion o Premio"
+              onPress={() => {
+                Alert.alert("Elige un opcion?", "", [
+                  {
+                    text: "Promocion",
+                    style: "default",
+                    onPress: () => {
+                      setType("Promocion");
+                      actionSheetRef.current?.setModalVisible();
+                    },
                   },
-                },
-              ]);
-            }}
-          />
+                  {
+                    text: "Premio",
+                    style: "default",
+                    onPress: () => {
+                      setType("Premio");
+                      actionSheetRef.current?.setModalVisible();
+                    },
+                  },
+                ]);
+              }}
+            />
+            <Button
+              title="Enviar Notificacion"
+              onPress={() => {
+                setNotify(true);
+              }}
+            />
+          </View>
         )}
         <View
           style={{
@@ -403,6 +471,59 @@ const InformationScreen = ({ navigation }) => {
             style={{ height: 200, width: 200 }}
             imageStyle={{ borderRadius: 15 }}
           ></Image>
+          {notify && (
+            <View>
+              <View style={styles.action}>
+                <Input
+                  label="Titulo"
+                  leftIcon={{ type: "font-awesome", name: "edit" }}
+                  placeholder="Titulo"
+                  placeholderTextColor="#666666"
+                  style={styles.textInput}
+                  value={notifyTitle}
+                  onChangeText={(text) => setNotifyTitle(text)}
+                  autoCorrect={false}
+                />
+              </View>
+              <View style={styles.action}>
+                <Input
+                  label="Subtitulo"
+                  leftIcon={{ type: "font-awesome", name: "edit" }}
+                  placeholder="Subtitulo"
+                  placeholderTextColor="#666666"
+                  style={styles.textInput}
+                  value={notifySubtitle}
+                  onChangeText={(text) => setNotifySubtitle(text)}
+                  autoCorrect={false}
+                />
+              </View>
+              <TouchableOpacity
+                style={
+                  notifyTitle === "" || notifySubtitle === ""
+                    ? styles.commandButtonDsiabled
+                    : styles.commandButton
+                }
+                onPress={() => {
+                  clientNotificationHandler();
+                }}
+                disabled={
+                  notifyTitle === "" || notifySubtitle === "" ? true : false
+                }
+              >
+                <Text style={styles.panelButtonTitle}>Enviar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.commandButton}
+                onPress={() => {
+                  setNotify(false);
+                  setNotifyTitle("");
+                  setNotifySubtitle("");
+                }}
+              >
+                <Text style={styles.panelButtonTitle}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {image !== null && (
             <View>
               <View style={styles.action}>
@@ -496,6 +617,30 @@ const InformationScreen = ({ navigation }) => {
             />
           )}
         />
+        <Subtitle>{"Premios".toUpperCase()}</Subtitle>
+
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={premiolist}
+          renderItem={(itemData) => (
+            <PromoItem
+              image={itemData.item.userImg}
+              title={itemData.item.Title}
+              logo={itemData.item.logo}
+              caption={itemData.item.Caption}
+              subtitle={itemData.item.Subtitle}
+              onClassClick={() => {
+                navigation.navigate("PromoDetail", {
+                  promoData: itemData.item,
+                });
+              }}
+              onLongPress={() => {
+                deletePromoHandler(itemData.item.key, itemData.item.Caption);
+              }}
+            />
+          )}
+        />
       </ScrollView>
     </View>
   );
@@ -514,6 +659,14 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: "center",
     // alignItems: "center",
+  },
+  commandButtonDsiabled: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "silver",
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 10,
   },
   commandButton: {
     padding: 15,

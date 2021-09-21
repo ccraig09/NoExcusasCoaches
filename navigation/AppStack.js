@@ -11,6 +11,7 @@ import PromoDetailScreen from "../screens/PromoDetailScreen";
 import CoachDetailsScreen from "../screens/CoachDetailsScreen";
 import ClientDetailsScreen from "../screens/ClientDetailsScreen";
 import ClientResultScreen from "../screens/ClientResultScreen";
+// import SpinScreen from "../components/SpinScreen";
 import ScanScreen from "../screens/ScanScreen";
 import Colors from "../constants/Colors";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -168,6 +169,14 @@ const InformationStack = () => (
         headerShown: true,
       })}
     />
+    {/* <Stack.Screen
+      name="Spin"
+      component={SpinScreen}
+      options={({ navigation }) => ({
+        title: "Spin that joint!",
+        headerShown: true,
+      })}
+    /> */}
   </Stack.Navigator>
 );
 const ClientStack = () => (

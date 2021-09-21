@@ -389,13 +389,14 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
-        uploadPromo: async (promoData, userImg) => {
+        uploadPromo: async (promoData, userImg, type) => {
           try {
             await dbPromo.doc().set(
               {
                 Caption: promoData.Title,
                 Subtitle: promoData.Subtitle,
                 Usuario: user.uid,
+                Type: type,
                 Description: promoData.Description,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 

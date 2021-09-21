@@ -49,21 +49,21 @@ const ClientDetailsScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ marginTop: 20 }}>
-        <Avatar
-          rounded
-          // avatarStyle={styles.userImg}
-          size={150}
-          icon={{ name: "user", type: "font-awesome" }}
-          source={{ uri: selectedClient.userImg }}
+        <TouchableOpacity
           onPress={() => {
-            navigation.navigate("EditClient", {
-              clientData: selectedClient,
-            });
+            navigation.navigate("Edit");
           }}
         >
-          <TouchableOpacity
+          <Avatar
+            rounded
+            // avatarStyle={styles.userImg}
+            size={150}
+            icon={{ name: "user", type: "font-awesome" }}
+            source={{ uri: selectedClient.userImg }}
             onPress={() => {
-              navigation.navigate("Edit");
+              navigation.navigate("EditClient", {
+                clientData: selectedClient,
+              });
             }}
           >
             <Avatar.Accessory
@@ -72,8 +72,8 @@ const ClientDetailsScreen = ({ route, navigation }) => {
               size={40}
               // color="black"
             />
-          </TouchableOpacity>
-        </Avatar>
+          </Avatar>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.userName}>

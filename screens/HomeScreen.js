@@ -77,7 +77,10 @@ const HomeScreen = ({ navigation }) => {
     dailyNotification();
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
-      addToken(token);
+      console.log("tokens match check", token, userInfo.expoPushToken);
+      if (token !== userInfo.expoPushToken) {
+        addToken(token);
+      }
       // console.log();
     });
   }, []);
@@ -166,31 +169,32 @@ const HomeScreen = ({ navigation }) => {
   const triggerNotificationHandler = () => {
     const coaches = coachList.map((code) => code.expoPushToken);
     console.log("cheses", coaches);
-    // Notifications.scheduleNotificationAsync({
-    //   content: {
-    //     title: "My first local notification",
-    //     body: "this is the first local notification we are sending!",
-    //     data: userInfo,
-    //   },
-    //   trigger: {
-    //     seconds: 6,
-    //   },
-    // });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "My first local notification",
+        body: "this is the first local notification we are sending!",
+        data: userInfo,
       },
-      body: JSON.stringify({
-        to: coaches,
-        data: { extraData: "Some data" },
-        title: "Sent via the app",
-        body: "This push notification was sent via the app!",
-        // badge: 7,
-      }),
+      trigger: {
+        seconds: 2,
+      },
     });
+
+    // fetch("https://exp.host/--/api/v2/push/send", {
+    //   method: "POST",
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Accept-Encoding": "gzip, deflate",
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     to: coaches,
+    //     data: { extraData: "Some data" },
+    //     title: "Sent via the app",
+    //     body: "This push notification was sent via the app!",
+    //     // badge: 7,
+    //   }),
+    // });
   };
 
   const renderItem = ({ item }) => (

@@ -19,6 +19,16 @@
     "ios": {
       "supportsTablet": true
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon-noexlogo.png",
+          "color": "blue",
+          "mode": "production"
+        }
+      ]
+    ],
     "android": {
       "useNextNotificationsApi" :true,
       "adaptiveIcon": {
