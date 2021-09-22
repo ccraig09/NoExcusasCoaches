@@ -11,12 +11,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import styled from "styled-components";
+import * as Linking from "expo-linking";
 
 const PromoDetailItem = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   // let logoimg = "../assets/icon-noexlogo.png";
-
+  console.log(props.description, props.extension);
   return (
     <View style={styles.Container}>
       <View style={styles.Cover}>
@@ -43,6 +44,11 @@ const PromoDetailItem = (props) => {
       </View>
       <ScrollView style={{ marginHorizontal: 5 }}>
         <Text>{props.description}</Text>
+        <TouchableOpacity onPress={() => Linking.openURL(props.extension)}>
+          <Text style={{ textDecorationLine: "underline", color: "blue" }}>
+            {props.extension}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

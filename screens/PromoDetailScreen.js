@@ -24,6 +24,7 @@ const PromoDetailScreen = ({ route, navigation }) => {
       title={promoData.Caption}
       subtitle={promoData.Subtitle}
       description={promoData.Description}
+      extension={promoData.Extension}
     />
   );
 };

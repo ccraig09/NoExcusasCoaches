@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { windowHeight, windowWidth } from "../utils/Dimensions";
+import Colors from "../constants/Colors";
 
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
@@ -36,12 +37,15 @@ export default SocialButton;
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    marginTop: 10,
     width: "100%",
-    height: windowHeight / 15,
-    padding: 10,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 15,
     flexDirection: "row",
-    borderRadius: 3,
+    borderColor: Colors.noExprimary,
   },
   iconWrapper: {
     width: 30,

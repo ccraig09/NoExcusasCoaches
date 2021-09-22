@@ -238,8 +238,8 @@ export const AuthProvider = ({ children }) => {
             .catch((e) => {
               const errorMes = firebaseErrors[e.code];
               alert(errorMes);
-              console.log(errorMes);
               console.log(e);
+              console.log(errorMes);
             });
         },
         signUpWithGoogle: async () => {
@@ -298,6 +298,7 @@ export const AuthProvider = ({ children }) => {
             .catch((e) => {
               const errorMes = firebaseErrors[e.code];
               alert(errorMes);
+              console.log(e);
               console.log(errorMes);
             });
         },
@@ -395,6 +396,7 @@ export const AuthProvider = ({ children }) => {
               {
                 Caption: promoData.Title,
                 Subtitle: promoData.Subtitle,
+                Extension: promoData.Extension,
                 Usuario: user.uid,
                 Type: type,
                 Description: promoData.Description,

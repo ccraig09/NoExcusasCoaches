@@ -49,6 +49,7 @@ const InformationScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState([]);
   const [promolist, setPromoList] = useState([]);
   const [premiolist, setPremioList] = useState([]);
+  const [contactlist, setContactList] = useState([]);
   const [promoData, setPromoData] = useState([]);
   const [notifyTitle, setNotifyTitle] = useState("");
   const [notifySubtitle, setNotifySubtitle] = useState("");
@@ -78,6 +79,7 @@ const InformationScreen = ({ navigation }) => {
                   Subtitle,
                   Usuario,
                   userImg,
+                  Extension,
                   Type,
                   Description,
                 } = doc.data();
@@ -85,6 +87,7 @@ const InformationScreen = ({ navigation }) => {
                   key: doc.id,
                   Caption: Caption,
                   Subtitle: Subtitle,
+                  Extension: Extension,
                   Description: Description,
                   Usuario: Usuario,
                   Type: Type,
@@ -94,6 +97,7 @@ const InformationScreen = ({ navigation }) => {
             });
           setPromoList(list.filter((data) => data.Type == "Promocion"));
           setPremioList(list.filter((data) => data.Type == "Premio"));
+          setContactList(list.filter((data) => data.Type == "Contact"));
         } catch (e) {
           console.log(e);
         }
@@ -167,12 +171,20 @@ const InformationScreen = ({ navigation }) => {
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            const { Caption, Subtitle, Usuario, userImg, Type, Description } =
-              doc.data();
+            const {
+              Caption,
+              Subtitle,
+              Extension,
+              Usuario,
+              userImg,
+              Type,
+              Description,
+            } = doc.data();
             list.push({
               key: doc.id,
               Caption: Caption,
               Subtitle: Subtitle,
+              Extension: Extension,
               Description: Description,
               Usuario: Usuario,
               Type: Type,
@@ -182,6 +194,7 @@ const InformationScreen = ({ navigation }) => {
         });
       setPromoList(list.filter((data) => data.Type == "Promocion"));
       setPremioList(list.filter((data) => data.Type == "Premio"));
+      setContactList(list.filter((data) => data.Type == "Contact"));
     } catch (e) {
       console.log(e);
     }
@@ -330,8 +343,10 @@ const InformationScreen = ({ navigation }) => {
     // }
 
     await uploadPromo(promoData, imageUrl, type);
-    triggerNotificationHandler();
-    Alert.alert("Promocion Subido!", "Tu promocion se ha subido exitosamente!");
+    if (type === "Promocion") {
+      triggerNotificationHandler();
+    }
+    Alert.alert(`${type} Subido!`, `Tu ${type} se ha subido exitosamente!`);
     fetchPromos();
   };
 
@@ -397,7 +412,7 @@ const InformationScreen = ({ navigation }) => {
         <ActionSheet ref={actionSheetRef} bounceOnOpen={true}>
           <View style={{ alignItems: "center" }}>
             <Text style={styles.panelTitle}>Subir Foto</Text>
-            <Text style={styles.panelSubtitle}>Eligir Foto de Perfil</Text>
+            <Text style={styles.panelSubtitle}>Eligir Foto</Text>
           </View>
 
           <TouchableOpacity
@@ -451,6 +466,29 @@ const InformationScreen = ({ navigation }) => {
               title="Enviar Notificacion"
               onPress={() => {
                 setNotify(true);
+              }}
+            />
+            <Button
+              title="Subir Contacto info"
+              onPress={() => {
+                Alert.alert(
+                  "Subir informacion por la secion de Contacto?",
+                  "",
+                  [
+                    {
+                      text: "Cancelar",
+                      style: "destructive",
+                    },
+                    {
+                      text: "Si",
+                      style: "default",
+                      onPress: () => {
+                        setType("Contact");
+                        actionSheetRef.current?.setModalVisible();
+                      },
+                    },
+                  ]
+                );
               }}
             />
           </View>
@@ -568,6 +606,20 @@ const InformationScreen = ({ navigation }) => {
                   autoCorrect={false}
                 />
               </View>
+              <View style={styles.action}>
+                <Input
+                  label="si hay una Extension"
+                  leftIcon={{ type: "font-awesome", name: "edit" }}
+                  placeholder="e.j pagina web, google maps, instagram etc"
+                  placeholderTextColor="#666666"
+                  style={styles.textInput}
+                  value={promoData.Extension}
+                  onChangeText={(text) =>
+                    setPromoData({ ...promoData, Extension: text })
+                  }
+                  autoCorrect={false}
+                />
+              </View>
             </View>
           )}
           {image !== null &&
@@ -588,7 +640,7 @@ const InformationScreen = ({ navigation }) => {
                   style={styles.commandButton}
                   onPress={submitChanges}
                 >
-                  <Text style={styles.panelButtonTitle}>Subir Promo</Text>
+                  <Text style={styles.panelButtonTitle}>Subir</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -605,6 +657,7 @@ const InformationScreen = ({ navigation }) => {
               title={itemData.item.Title}
               logo={itemData.item.logo}
               caption={itemData.item.Caption}
+              extension={itemData.item.Extension}
               subtitle={itemData.item.Subtitle}
               onClassClick={() => {
                 navigation.navigate("PromoDetail", {
@@ -628,6 +681,31 @@ const InformationScreen = ({ navigation }) => {
               image={itemData.item.userImg}
               title={itemData.item.Title}
               logo={itemData.item.logo}
+              caption={itemData.item.Caption}
+              extension={itemData.item.Extension}
+              subtitle={itemData.item.Subtitle}
+              onClassClick={() => {
+                navigation.navigate("PromoDetail", {
+                  promoData: itemData.item,
+                });
+              }}
+              onLongPress={() => {
+                deletePromoHandler(itemData.item.key, itemData.item.Caption);
+              }}
+            />
+          )}
+        />
+        <Subtitle>{"Contacto".toUpperCase()}</Subtitle>
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={contactlist}
+          renderItem={(itemData) => (
+            <PromoItem
+              image={itemData.item.userImg}
+              title={itemData.item.Title}
+              logo={itemData.item.logo}
+              extension={itemData.item.Extension}
               caption={itemData.item.Caption}
               subtitle={itemData.item.Subtitle}
               onClassClick={() => {

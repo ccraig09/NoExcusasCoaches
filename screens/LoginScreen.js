@@ -4,42 +4,89 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Dimensions,
   Platform,
   StyleSheet,
+  TextInput,
   ActivityIndicator,
   ScrollView,
+  StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "../constants/Colors";
-import Input from "../components/UI/Input";
+// import Input from "../components/UI/Input";
 import Card from "../components/UI/Card";
+import validator from "validator";
+// import { Input } from "react-native-elements";
+import * as Animatable from "react-native-animatable";
 
 import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
 import SocialButton from "../components/SocialButton";
 import { AuthContext } from "../navigation/AuthProvider";
+import * as Google from "expo-google-app-auth";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Feather from "react-native-vector-icons/Feather";
 
-const LoginScreen = (props) => {
+const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [check_textInputChange, setCheck_textInputChange] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [isValidUser, setIsValidUser] = useState(true);
+  const [isValidPassword, setIsValidPassword] = useState(true);
 
   const { login, signInWithGoogle } = useContext(AuthContext);
 
+  const textInputChange = (val) => {
+    if (validator.isEmail(val)) {
+      setEmail(val);
+      setCheck_textInputChange(true);
+      setIsValidUser(true);
+    } else {
+      setEmail(val);
+      setCheck_textInputChange(false);
+      setIsValidUser(false);
+    }
+  };
+
+  const handlePasswordChange = (val) => {
+    if (val.trim().length >= 8) {
+      setPassword(val);
+      setIsValidPassword(true);
+    } else {
+      setPassword(val);
+      setIsValidPassword(false);
+    }
+  };
+
+  const updateSecureTextEntry = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
   const loginHandler = async () => {
-    setIsLoading(true);
+    if (isValidUser === false || isValidPassword === false) {
+      Alert.alert("Incompleto!", "Por favor revise los datos");
+    } else {
+      setIsLoading(true);
 
-    await login(email, password);
+      await login(email, password);
 
-    setIsLoading(false);
+      setIsLoading(false);
+    }
   };
   const googleLoginHandler = async () => {
-    setIsLoading(true);
-
     await signInWithGoogle();
+  };
 
-    // setIsLoading(false);
+  const handleValidUser = (val) => {
+    if (validator.isEmail(val)) {
+      setIsValidUser(true);
+    } else {
+      setIsValidUser(false);
+    }
   };
 
   if (isLoading) {
@@ -48,7 +95,7 @@ const LoginScreen = (props) => {
         colors={["#ffffff", Colors.noExprimary]}
         style={styles.gradient}
       >
-        <View style={styles.container}>
+        <View style={styles.activityContainer}>
           <ActivityIndicator size="small" />
         </View>
       </LinearGradient>
@@ -57,87 +104,146 @@ const LoginScreen = (props) => {
 
   return (
     <LinearGradient
-      colors={["#ffffff", Colors.noExprimary]}
+      colors={[Colors.noExprimary, "#ffffff"]}
       style={styles.gradient}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={require("../assets/icon-noexlogo.png")}
-          style={styles.logo}
+      <View style={styles.container}>
+        <StatusBar
+          backgroundColor={Colors.noExprimary}
+          barStyle="light-content"
         />
-        <Text style={styles.text}>Bienvenido</Text>
-        {/* <Text style={styles.text}>Prioriza</Text> */}
-
-        <FormInput
-          labelValue={email}
-          onChangeText={(userEmail) => setEmail(userEmail)}
-          placeholderText="Correo"
-          iconType="user"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-
-        <FormInput
-          labelValue={password}
-          onChangeText={(userPassword) => setPassword(userPassword)}
-          placeholderText="Contraseña"
-          iconType="lock"
-          secureTextEntry={true}
-        />
-        <View style={{ width: "100%" }}>
-          <FormButton
-            buttonTitle="Iniciar Sesión"
-            onPress={() => loginHandler()}
-          />
+        <View style={styles.header}>
+          <Text style={styles.text_header}>Bienvenido Coach!</Text>
         </View>
+        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Text style={styles.text_footer}>Correo</Text>
+            <View style={styles.action}>
+              <FontAwesome name="user-o" color={"#05375a"} size={20} />
+              <TextInput
+                placeholder="Tu correo electronico"
+                placeholderTextColor="#666666"
+                style={styles.textInput}
+                value={email}
+                onChangeText={(val) => textInputChange(val)}
+                autoCorrect={false}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
+              />
+              {check_textInputChange ? (
+                <Animatable.View animation="bounceIn">
+                  <Feather name="check-circle" color="green" size={20} />
+                </Animatable.View>
+              ) : null}
+            </View>
+            {isValidUser ? null : (
+              <Animatable.View animation="fadeInLeft" duration={500}>
+                <Text style={styles.errorMsg}>
+                  Por Favor usar un correo electronico valido
+                </Text>
+              </Animatable.View>
+            )}
+            <Text style={[styles.text_footer, { marginTop: 35 }]}>
+              Contraseña
+            </Text>
+            <View style={styles.action}>
+              <Feather name="lock" color={"#05375a"} size={20} />
+              <TextInput
+                placeholder="Tu contraseña"
+                placeholderTextColor="#666666"
+                style={styles.textInput}
+                value={password}
+                onChangeText={(val) => handlePasswordChange(val)}
+                autoCorrect={false}
+                secureTextEntry={secureTextEntry ? true : false}
+              />
+              <TouchableOpacity onPress={updateSecureTextEntry}>
+                {secureTextEntry ? (
+                  <Feather name="eye-off" color="grey" size={20} />
+                ) : (
+                  <Feather name="eye" color="grey" size={20} />
+                )}
+              </TouchableOpacity>
+            </View>
+            {isValidPassword ? null : (
+              <Animatable.View animation="fadeInLeft" duration={500}>
+                <Text style={styles.errorMsg}>
+                  La contranseña debe ser minimo 8 caracteres
+                </Text>
+              </Animatable.View>
+            )}
 
-        <TouchableOpacity
-          style={styles.forgotButton}
-          onPress={() => props.navigation.navigate("Forgot")}
-        >
-          <Text style={styles.navButtonText}>Olvidé mi contranseña</Text>
-        </TouchableOpacity>
+            <View style={styles.button}>
+              <TouchableOpacity
+                onPress={() => loginHandler()}
+                style={[
+                  styles.signIn,
+                  {
+                    backgroundColor: Colors.noExprimary,
+                  },
+                ]}
+              >
+                <Text style={[styles.textSign, { color: "white" }]}>
+                  Iniciar Sesion
+                </Text>
+                {/* <MaterialIcons name="navigate-next" color="#fff" size={20} /> */}
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Signup")}
+              style={[
+                styles.signIn,
+                {
+                  borderColor: Colors.noExprimary,
+                  borderWidth: 1,
+                  marginTop: 15,
+                },
+              ]}
+            >
+              <Text style={[styles.textSign, { color: Colors.noExprimary }]}>
+                No tienes una Cuenta?
+              </Text>
+              {/* <MaterialIcons name="navigate-next" color="#fff" size={20} /> */}
+            </TouchableOpacity>
 
-        <View>
-          <SocialButton
-            buttonTitle="Gmail"
-            btnType="google"
-            color="#de4d41"
-            backgroundColor="#f5e7ea"
-            onPress={() => {
-              googleLoginHandler();
-            }}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.forgotButton}
-          onPress={() => props.navigation.navigate("Signup")}
-        >
-          <Text style={styles.navButtonText}>
-            No tienes una cuenta? Crear aqui
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
+            <View>
+              <SocialButton
+                buttonTitle="Gmail"
+                btnType="google"
+                color="#de4d41"
+                backgroundColor="white"
+                onPress={() => {
+                  googleLoginHandler();
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.forgotButton}
+              onPress={() => props.navigation.navigate("Forgot")}
+            >
+              <Text style={styles.navButtonText}>Olvidé mi contranseña</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </Animatable.View>
+      </View>
     </LinearGradient>
   );
 };
 
+{
+}
+
 export default LoginScreen;
+const { height } = Dimensions.get("screen");
+const height_logo = height * 0.28;
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    paddingTop: 50,
-  },
-  gradient: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  // gradient: {
+  // flex: 1,
+  // justifyContent: "center",
+  // alignItems: "center",
+  // },
   logo: {
     height: 200,
     width: 200,
@@ -155,11 +261,91 @@ const styles = StyleSheet.create({
   },
   forgotButton: {
     marginVertical: 15,
+    alignSelf: "center",
   },
   navButtonText: {
     fontSize: 18,
     fontWeight: "500",
     color: "#2e64e5",
-    // fontFamily: "Lato-Regular",
+    fontFamily: "Lato-Regular",
+  },
+
+  ////////
+  gradient: {
+    flex: 1,
+  },
+  activityContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+
+    // backgroundColor: "#009387",
+  },
+  container: {
+    flex: 1,
+    // backgroundColor: "#009387",
+  },
+  header: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingHorizontal: 20,
+    paddingBottom: 50,
+  },
+  footer: {
+    flex: 4,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+  },
+  text_header: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 30,
+  },
+  text_footer: {
+    color: "#05375a",
+    fontSize: 18,
+  },
+  action: {
+    flexDirection: "row",
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+    alignItems: "center",
+  },
+  actionError: {
+    flexDirection: "row",
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#FF0000",
+    paddingBottom: 5,
+  },
+  textInput: {
+    flex: 1,
+    marginTop: Platform.OS === "ios" ? 0 : -12,
+    paddingLeft: 10,
+    color: "#05375a",
+  },
+  errorMsg: {
+    color: "#FF0000",
+    fontSize: 14,
+  },
+  button: {
+    alignItems: "center",
+    marginTop: 50,
+  },
+  signIn: {
+    width: "100%",
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  textSign: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

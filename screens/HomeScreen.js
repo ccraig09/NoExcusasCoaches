@@ -34,7 +34,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import NotificationButton from "../components/UI/NotificationButton";
 import * as Linking from "expo-linking";
-
+import Pedometer from "../components/Pedometer";
 const currentHour = new Date().getHours();
 
 const greetingMessage =
@@ -402,7 +402,11 @@ const HomeScreen = ({ navigation }) => {
             />
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Notification");
+              }}
+            >
               <NotificationButton />
             </TouchableOpacity>
           </View>
@@ -419,6 +423,8 @@ const HomeScreen = ({ navigation }) => {
         title="Trigger Notification"
         onPress={triggerNotificationHandler}
       />
+
+      <Pedometer />
       <Subtitle>{"Coaches".toUpperCase()}</Subtitle>
       <FlatList
         showsHorizontalScrollIndicator={false}
