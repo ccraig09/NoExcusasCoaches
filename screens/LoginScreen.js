@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ import { AuthContext } from "../navigation/AuthProvider";
 import * as Google from "expo-google-app-auth";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +39,17 @@ const LoginScreen = ({ navigation }) => {
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [isValidUser, setIsValidUser] = useState(true);
   const [isValidPassword, setIsValidPassword] = useState(true);
+  const [loginAvailable, setLoginAvailable] = useState();
 
-  const { login, signInWithGoogle } = useContext(AuthContext);
+  const { login, signInWithGoogle, signUpWithApple } = useContext(AuthContext);
+
+  useEffect(() => {
+    const availableCheck = async () => {
+      const loginAvailable = await AppleAuthentication.isAvailableAsync();
+      setLoginAvailable(loginAvailable);
+    };
+    availableCheck();
+  }, []);
 
   const textInputChange = (val) => {
     if (validator.isEmail(val)) {
@@ -217,6 +227,21 @@ const LoginScreen = ({ navigation }) => {
                   googleLoginHandler();
                 }}
               />
+              {loginAvailable === true ? (
+                <View style={{ alignItems: "center" }}>
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={
+                      AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP
+                    }
+                    buttonStyle={
+                      AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+                    }
+                    cornerRadius={5}
+                    style={{ width: "100%", height: 50, marginTop: 15 }}
+                    onPress={signUpWithApple}
+                  />
+                </View>
+              ) : null}
             </View>
             <TouchableOpacity
               style={styles.forgotButton}

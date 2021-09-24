@@ -74,7 +74,7 @@ const HomeScreen = ({ navigation }) => {
   const keyExtractor = (item, index) => index.toString();
 
   useEffect(() => {
-    dailyNotification();
+    // dailyNotification();
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
       console.log("tokens match check", token, userInfo.expoPushToken);
@@ -149,53 +149,53 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
-  const dailyNotification = () => {
-    // const coaches = coachList.map((code) => code.expoPushToken);
-    // console.log("cheses", coaches);
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Diario Frase Motivacional",
-        body: "Deeeenso con tooodo!",
-      },
-      trigger: {
-        // type: "daily",
-        hour: 18,
-        minute: 10,
+  // const dailyNotification = () => {
+  //   // const coaches = coachList.map((code) => code.expoPushToken);
+  //   // console.log("cheses", coaches);
+  //   Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: "Diario Frase Motivacional",
+  //       body: "Deeeenso con tooodo!",
+  //     },
+  //     trigger: {
+  //       // type: "daily",
+  //       hour: 18,
+  //       minute: 10,
 
-        repeats: true,
-      },
-    });
-  };
-  const triggerNotificationHandler = () => {
-    const coaches = coachList.map((code) => code.expoPushToken);
-    console.log("cheses", coaches);
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: "My first local notification",
-        body: "this is the first local notification we are sending!",
-        data: userInfo,
-      },
-      trigger: {
-        seconds: 2,
-      },
-    });
+  //       repeats: true,
+  //     },
+  //   });
+  // };
+  // const triggerNotificationHandler = () => {
+  //   const coaches = coachList.map((code) => code.expoPushToken);
+  //   console.log("cheses", coaches);
+  //   Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: "My first local notification",
+  //       body: "this is the first local notification we are sending!",
+  //       data: userInfo,
+  //     },
+  //     trigger: {
+  //       seconds: 2,
+  //     },
+  //   });
 
-    // fetch("https://exp.host/--/api/v2/push/send", {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Accept-Encoding": "gzip, deflate",
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     to: coaches,
-    //     data: { extraData: "Some data" },
-    //     title: "Sent via the app",
-    //     body: "This push notification was sent via the app!",
-    //     // badge: 7,
-    //   }),
-    // });
-  };
+  // fetch("https://exp.host/--/api/v2/push/send", {
+  //   method: "POST",
+  //   headers: {
+  //     Accept: "application/json",
+  //     "Accept-Encoding": "gzip, deflate",
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     to: coaches,
+  //     data: { extraData: "Some data" },
+  //     title: "Sent via the app",
+  //     body: "This push notification was sent via the app!",
+  //     // badge: 7,
+  //   }),
+  // });
+  // };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -419,12 +419,12 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.TitleBar}></View>
-      <Button
+      {/* <Button
         title="Trigger Notification"
         onPress={triggerNotificationHandler}
-      />
+      /> */}
 
-      <Pedometer />
+      {/* <Pedometer /> */}
       <Subtitle>{"Coaches".toUpperCase()}</Subtitle>
       <FlatList
         showsHorizontalScrollIndicator={false}

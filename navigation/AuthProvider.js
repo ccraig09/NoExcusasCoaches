@@ -3,6 +3,8 @@ import { Alert } from "react-native";
 import firebase from "../components/firebase";
 import * as Google from "expo-google-app-auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Crypto from "expo-crypto";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 export const AuthContext = createContext();
 
@@ -301,6 +303,33 @@ export const AuthProvider = ({ children }) => {
               console.log(e);
               console.log(errorMes);
             });
+        },
+
+        signUpWithApple: async () => {
+          const csrf = Math.random().toString(36).substring(2, 15);
+          const nonce = Math.random().toString(36).substring(2, 10);
+          const hashedNonce = await Crypto.digestStringAsync(
+            Crypto.CryptoDigestAlgorithm.SHA256,
+            nonce
+          );
+          const appleCredential = await AppleAuthentication.signInAsync({
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+            state: csrf,
+            nonce: hashedNonce,
+          });
+          const { identityToken, email, state } = appleCredential;
+
+          if (identityToken) {
+            const provider = new firebase.auth.OAuthProvider("apple.com");
+            const credential = provider.credential({
+              idToken: identityToken,
+              rawNonce: nonce, // nonce value from above
+            });
+            await firebase.auth().signInWithCredential(credential);
+          }
         },
 
         deleteProduct: async (key) => {

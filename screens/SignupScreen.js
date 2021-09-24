@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import * as Animatable from "react-native-animatable";
 import validator from "validator";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 const SignupScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,8 +36,18 @@ const SignupScreen = ({ navigation }) => {
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [isValidConfirmPassword, setIsValidConfirmPassword] = useState(true);
   const [confirmSecureTextEntry, setConfirmSecureTextEntry] = useState(true);
+  const [loginAvailable, setLoginAvailable] = useState();
 
-  const { register, signUpWithGoogle } = useContext(AuthContext);
+  const { register, signUpWithGoogle, signUpWithApple } =
+    useContext(AuthContext);
+
+  useEffect(() => {
+    const availableCheck = async () => {
+      const loginAvailable = await AppleAuthentication.isAvailableAsync();
+      setLoginAvailable(loginAvailable);
+    };
+    availableCheck();
+  }, []);
 
   const textInputChange = (val) => {
     if (validator.isEmail(val)) {
@@ -260,6 +271,21 @@ const SignupScreen = ({ navigation }) => {
                   googleLoginHandler();
                 }}
               />
+              {loginAvailable === true ? (
+                <View style={{ alignItems: "center" }}>
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={
+                      AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP
+                    }
+                    buttonStyle={
+                      AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+                    }
+                    cornerRadius={5}
+                    style={{ width: "100%", height: 50, marginTop: 15 }}
+                    onPress={signUpWithApple}
+                  />
+                </View>
+              ) : null}
             </View>
           </ScrollView>
         </Animatable.View>
