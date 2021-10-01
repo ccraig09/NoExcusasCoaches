@@ -66,12 +66,18 @@ const ClientDetailsScreen = ({ route, navigation }) => {
               });
             }}
           >
-            <Avatar.Accessory
-              name="pencil-outline"
-              type="material-community"
-              size={40}
-              // color="black"
-            />
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Edit");
+              }}
+            >
+              <Avatar.Accessory
+                name="pencil-outline"
+                type="material-community"
+                size={40}
+                // color="black"
+              />
+            </TouchableOpacity>
           </Avatar>
         </TouchableOpacity>
       </View>

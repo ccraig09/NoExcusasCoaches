@@ -483,6 +483,7 @@ const InformationScreen = ({ navigation }) => {
                       text: "Si",
                       style: "default",
                       onPress: () => {
+                        setNotify(true);
                         setType("Contact");
                         actionSheetRef.current?.setModalVisible();
                       },

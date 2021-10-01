@@ -24,7 +24,7 @@ const fetchFonts = async () => {
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
-
+  //cruzmarilu462@gmail.com
   if (!fontLoaded) {
     return (
       <AppLoading

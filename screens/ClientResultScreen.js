@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { ListItem, Avatar } from "react-native-elements";
@@ -45,10 +46,32 @@ const ClientResultScreen = ({ route, navigation }) => {
     },
   ];
 
+  const alertDialog = () => {
+    Alert.alert("Listo?", "", [
+      {
+        text: "Todavia",
+        style: "destructive",
+        onPress: () => {
+          timeHandler();
+        },
+      },
+      {
+        text: "Listo",
+        style: "default",
+        onPress: () => {
+          navigation.goBack();
+        },
+      },
+    ]);
+  };
+  const timeHandler = () => {
+    setTimeout(() => {
+      alertDialog();
+    }, 7000);
+  };
+
   useEffect(() => {
-    // setTimeout(() => {
-    //   navigation.goBack();
-    // }, 8000);
+    timeHandler();
   }, []);
 
   return (

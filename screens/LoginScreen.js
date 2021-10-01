@@ -41,7 +41,7 @@ const LoginScreen = ({ navigation }) => {
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [loginAvailable, setLoginAvailable] = useState();
 
-  const { login, signInWithGoogle, signUpWithApple } = useContext(AuthContext);
+  const { login, signInWithGoogle, signInWithApple } = useContext(AuthContext);
 
   useEffect(() => {
     const availableCheck = async () => {
@@ -218,7 +218,7 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <View>
-              <SocialButton
+              {/* <SocialButton
                 buttonTitle="Gmail"
                 btnType="google"
                 color="#de4d41"
@@ -226,7 +226,7 @@ const LoginScreen = ({ navigation }) => {
                 onPress={() => {
                   googleLoginHandler();
                 }}
-              />
+              /> */}
               {loginAvailable === true ? (
                 <View style={{ alignItems: "center" }}>
                   <AppleAuthentication.AppleAuthenticationButton
@@ -238,7 +238,7 @@ const LoginScreen = ({ navigation }) => {
                     }
                     cornerRadius={5}
                     style={{ width: "100%", height: 50, marginTop: 15 }}
-                    onPress={signUpWithApple}
+                    onPress={signInWithApple}
                   />
                 </View>
               ) : null}
