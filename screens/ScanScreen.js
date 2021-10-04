@@ -220,13 +220,17 @@ const ScanScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={{ marginTop: 20 }}>
-        <Button
-          color={Colors.noExprimary}
-          title={openScanner ? "Cancelar" : "Abrir Scanner"}
+        <TouchableOpacity
           onPress={() => {
             setOpenScanner((prevState) => !prevState);
           }}
-        />
+          style={styles.panelButton}
+        >
+          {/* color={Colors.noExprimary} */}
+          <Text style={styles.panelButtonTitle}>
+            {openScanner ? "Cancelar" : "Abrir Scanner"}
+          </Text>
+        </TouchableOpacity>
         {/* <Modal animationType="slide" transparent={true} visible={scannedModal}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
@@ -294,5 +298,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 20,
     // fontWeight: "bold",
+  },
+  panelButton: {
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: Colors.noExprimary,
+    alignItems: "center",
+    alignSelf: "center",
+    marginVertical: 7,
+    width: 300,
+  },
+  panelButtonTitle: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: "white",
   },
 });
