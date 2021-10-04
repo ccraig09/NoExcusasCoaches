@@ -74,6 +74,7 @@ const HomeScreen = ({ navigation }) => {
   const keyExtractor = (item, index) => index.toString();
 
   useEffect(() => {
+    Notifications.cancelAllScheduledNotificationsAsync();
     // dailyNotification();
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);

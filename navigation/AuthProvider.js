@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const dbP = firebase.firestore().collection("Products");
   const dbC = firebase.firestore().collection("Coaches");
   const dbPromo = firebase.firestore().collection("Promos");
+  const dbN = firebase.firestore().collection("NotificationsHistory");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -456,6 +457,26 @@ export const AuthProvider = ({ children }) => {
                 email: userInfo.email,
                 country: userInfo.country,
                 userImg,
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        notificationReceipt: async (title, subtitle, token, fName, lName) => {
+          try {
+            await dbN.doc().set(
+              {
+                userId: user.uid,
+                title,
+                subtitle,
+                token,
+                fName,
+                lName,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }
             );

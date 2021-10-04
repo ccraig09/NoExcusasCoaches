@@ -250,6 +250,7 @@ const ScanScreen = ({ navigation, route }) => {
             // barCodeTypes={[BarCodeScanner.Constants.BarCodeType.ean13]}
             onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
             style={StyleSheet.absoluteFillObject}
+            type={"front"}
           />
         </View>
       )}
