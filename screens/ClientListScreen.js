@@ -405,7 +405,10 @@ const ClientListScreen = ({ navigation }) => {
       />
 
       <View style={styles.TitleBar}></View>
-      <Subtitle>{"Clientes".toUpperCase()}</Subtitle>
+      <Subtitle>
+        {"Clientes".toUpperCase()} ( {clientList.length} )
+      </Subtitle>
+      <Text></Text>
       <FlatList
         showsHorizontalScrollIndicator={false}
         data={clientList}

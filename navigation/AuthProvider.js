@@ -510,7 +510,7 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
-        editClient: async (userInfo, userImg) => {
+        editClient: async (userInfo, userImg, notes) => {
           try {
             await db.doc(userInfo.userId).set(
               {
@@ -540,7 +540,7 @@ export const AuthProvider = ({ children }) => {
                 Osea: userInfo.Osea,
                 Metabolica: userInfo.Metabolica,
                 Viseral: userInfo.Viseral,
-                notes: userInfo.notes,
+                notes: notes,
               },
               { merge: true }
             );

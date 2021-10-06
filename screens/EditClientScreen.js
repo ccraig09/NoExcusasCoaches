@@ -66,6 +66,7 @@ const EditClientScreen = ({ navigation, route }) => {
   const [transferred, setTransferred] = useState(0);
   const [userInfo, setUserInfo] = useState([]);
   const [picked, setPicked] = useState();
+  const [notes, setNotes] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const [showStart, setShowStart] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
@@ -180,7 +181,7 @@ const EditClientScreen = ({ navigation, route }) => {
       imageUrl = null;
     }
 
-    editClient(userInfo, imageUrl);
+    editClient(userInfo, imageUrl, notes);
   };
 
   const uploadImage = async () => {
@@ -531,11 +532,11 @@ const EditClientScreen = ({ navigation, route }) => {
           <Input
             label="Notas"
             leftIcon={{ type: "font-awesome", name: "sticky-note-o" }}
-            placeholder={"Notas Adicionales"}
+            placeholder={selectedClient.notes ? selectedClient.notes : notes}
             placeholderTextColor="#666666"
             style={styles.textInput}
-            value={userInfo ? userInfo.notes : ""}
-            onChangeText={(text) => setUserInfo({ ...userInfo, notes: text })}
+            value={notes}
+            onChangeText={(text) => setNotes(text)}
             autoCorrect={false}
             returnKeyType="done"
             multiline
