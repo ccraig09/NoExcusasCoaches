@@ -12,6 +12,7 @@ import PromoDetailScreen from "../screens/PromoDetailScreen";
 import CoachDetailsScreen from "../screens/CoachDetailsScreen";
 import ClientDetailsScreen from "../screens/ClientDetailsScreen";
 import ClientResultScreen from "../screens/ClientResultScreen";
+import getFocusedRouteNameFromRoute from "@react-navigation/native";
 // import SpinScreen from "../components/SpinScreen";
 import ScanScreen from "../screens/ScanScreen";
 import Colors from "../constants/Colors";
@@ -99,7 +100,7 @@ let routeName;
 //   );
 // };
 
-const AppStack = () => {
+const HomeTabs = () => {
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -111,8 +112,8 @@ const AppStack = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeStack}
-        options={{
+        component={HomeScreen}
+        options={({ route }) => ({
           tabBarLabel: "Inicio",
           tabBarIcon: ({ color, focused }) =>
             focused ? (
@@ -120,7 +121,7 @@ const AppStack = () => {
             ) : (
               <Icon name="ios-home" color={color} size={26} />
             ),
-        }}
+        })}
       />
       <Tab.Screen
         name="Clientes"
@@ -209,11 +210,11 @@ const ClientStack = () => (
   </Stack.Navigator>
 );
 
-const HomeStack = ({ navigation }) => (
+const AppStack = ({ navigation }) => (
   <Stack.Navigator initialRouteName="Home">
     <Stack.Screen
       name="Home"
-      component={HomeScreen}
+      component={HomeTabs}
       options={({ navigation }) => ({
         title: "",
         headerShown: false,
@@ -238,9 +239,8 @@ const HomeStack = ({ navigation }) => (
     <Stack.Screen
       name="Scan"
       component={ScanScreen}
-      options={({ navigation }) => ({
-        title: "Iniciar Sesion",
-        headerShown: true,
+      options={({ route }) => ({
+        headerShown: false,
       })}
     />
     <Stack.Screen

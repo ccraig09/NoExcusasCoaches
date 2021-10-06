@@ -227,7 +227,7 @@ const LoginScreen = ({ navigation }) => {
                   googleLoginHandler();
                 }}
               /> */}
-              {loginAvailable === true ? (
+              {/* {loginAvailable === true ? (
                 <View style={{ alignItems: "center" }}>
                   <AppleAuthentication.AppleAuthenticationButton
                     buttonType={
@@ -241,7 +241,7 @@ const LoginScreen = ({ navigation }) => {
                     onPress={signInWithApple}
                   />
                 </View>
-              ) : null}
+              ) : null} */}
             </View>
             <TouchableOpacity
               style={styles.forgotButton}

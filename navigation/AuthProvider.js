@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const dbC = firebase.firestore().collection("Coaches");
   const dbPromo = firebase.firestore().collection("Promos");
   const dbN = firebase.firestore().collection("NotificationsHistory");
+  const dbLog = firebase.firestore().collection("ScanHistory");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -183,6 +184,7 @@ export const AuthProvider = ({ children }) => {
                   FirstName: "",
                   LastName: "",
                   Phone: "",
+                  password,
                   email: email,
                   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                   userImg: null,
@@ -504,8 +506,8 @@ export const AuthProvider = ({ children }) => {
             );
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
-            alert(errorMes);
-            console.log(errorMes);
+            alert(e);
+            console.log(e);
           }
         },
         editClient: async (userInfo, userImg) => {
@@ -523,13 +525,29 @@ export const AuthProvider = ({ children }) => {
                 goal: userInfo.goal,
                 history: userInfo.history,
                 sport: userInfo.sport,
+                Age: userInfo.Age,
+                Height: userInfo.Height,
+                Weight: userInfo.Weight,
+                Gender: userInfo.Gender,
+                BaseStartDate: userInfo.BaseStartDate,
+                Imc: userInfo.Imc,
+                Grasa: userInfo.Grasa,
+                Musculo: userInfo.Musculo,
+                Basal: userInfo.Basal,
+                GoalBasal: userInfo.GoalBasal,
+                Agua: userInfo.Agua,
+                Proteina: userInfo.Proteina,
+                Osea: userInfo.Osea,
+                Metabolica: userInfo.Metabolica,
+                Viseral: userInfo.Viseral,
+                notes: userInfo.notes,
               },
               { merge: true }
             );
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
-            alert(errorMes);
-            console.log(errorMes);
+            alert(e);
+            console.log(e);
           }
         },
         deletePromoImage: async (key, title) => {
@@ -566,6 +584,29 @@ export const AuthProvider = ({ children }) => {
               {
                 lastSignIn: lastSignIn,
                 points: increment,
+                lastSignInTime: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        logScan: async (userInfo, date) => {
+          const increment = firebase.firestore.FieldValue.increment(1);
+
+          try {
+            await dbLog.doc().set(
+              {
+                scanDate: date,
+                points: increment,
+                FirstName: userInfo.FirstName,
+                LastName: userInfo.LastName,
+                email: userInfo.email,
+                userId: userInfo.userId,
+                userImg: userInfo.userImg,
                 lastSignInTime: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }

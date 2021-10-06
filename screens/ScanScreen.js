@@ -27,6 +27,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import * as Notifications from "expo-notifications";
+import { Video } from "expo-av";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -42,8 +43,7 @@ const ScanScreen = ({ navigation, route }) => {
   const [scannedClient, setScannedClient] = useState();
   const [hasPermission, setHasPermission] = useState(null);
   const [scannedModal, setScannedModal] = useState(false);
-  const { user, createProduct, editedProduct, addPoints } =
-    useContext(AuthContext);
+  const { logScan, addPoints } = useContext(AuthContext);
   const [clientList, setClientList] = useState([]);
   const [sound, setSound] = React.useState();
   const moment = extendMoment(Moment);
@@ -162,6 +162,58 @@ const ScanScreen = ({ navigation, route }) => {
     }, [])
   );
 
+  const fetchClients = async () => {
+    try {
+      const list = [];
+      await firebase
+        .firestore()
+        .collection("Members")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const {
+              FirstName,
+              LastName,
+              userImg,
+              email,
+              Phone,
+              createdAt,
+              plan,
+              startDate,
+              points,
+              lastSignIn,
+              endDate,
+              goal,
+              history,
+              sport,
+              userId,
+            } = doc.data();
+            list.push({
+              key: doc.id,
+              FirstName: FirstName,
+              LastName: LastName,
+              userImg: userImg,
+              email: email,
+              Phone: Phone,
+              lastSignIn: lastSignIn,
+              plan: plan,
+              points: points,
+              startDate: startDate,
+              endDate: endDate,
+              goal: goal,
+              history: history,
+              sport: sport,
+              createdAt: createdAt,
+              userId: userId,
+            });
+          });
+        });
+      setClientList(list);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
     setOpenScanner(false);
@@ -197,12 +249,13 @@ const ScanScreen = ({ navigation, route }) => {
     console.log(date);
     if (date === scannedUser.lastSignIn) {
       playError();
-      triggerNotificationHandler(scannedUser);
+
       Alert.alert("Ya iniciaste tu sesion por hoy");
     } else {
       playSound();
       triggerNotificationHandler(scannedUser);
       await addPoints(scannedUser, date);
+      logScan(scannedUser, date);
       navigation.navigate("Client", {
         data: scannedUser,
       });
@@ -219,7 +272,28 @@ const ScanScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+      <Video
+        source={{
+          uri: "https://drive.google.com/uc?export=download&id=1mpMVYsFp402M5WkNLjPtg6eNVZLW03Jv",
+        }}
+        style={styles.backgroundVideo}
+        rate={1}
+        shouldPlay={true}
+        isLooping={true}
+        volume={0}
+        muted={true}
+        resizeMode="cover"
+      />
       <View style={{ marginTop: 20 }}>
+        <TouchableOpacity
+          onPress={() => {
+            fetchClients();
+          }}
+          style={styles.panelButton}
+        >
+          {/* color={Colors.noExprimary} */}
+          <Text style={styles.panelButtonTitle}>Refrescar</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             setOpenScanner((prevState) => !prevState);
@@ -228,7 +302,7 @@ const ScanScreen = ({ navigation, route }) => {
         >
           {/* color={Colors.noExprimary} */}
           <Text style={styles.panelButtonTitle}>
-            {openScanner ? "Cancelar" : "Abrir Scanner"}
+            {openScanner ? "Cancelar" : "Iniciar Sesion"}
           </Text>
         </TouchableOpacity>
         {/* <Modal animationType="slide" transparent={true} visible={scannedModal}>
@@ -306,11 +380,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     marginVertical: 7,
-    width: 300,
+    width: 350,
   },
   panelButtonTitle: {
     fontSize: 40,
     fontWeight: "bold",
     color: "white",
+  },
+  backgroundVideo: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });

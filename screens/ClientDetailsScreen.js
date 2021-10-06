@@ -44,6 +44,10 @@ const ClientDetailsScreen = ({ route, navigation }) => {
       data: selectedClient.endDate,
     },
     {
+      title: "Notas:",
+      data: selectedClient.notes,
+    },
+    {
       title: "Metas:",
       data: selectedClient.goal,
     },

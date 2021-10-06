@@ -271,7 +271,7 @@ const SignupScreen = ({ navigation }) => {
                   googleLoginHandler();
                 }}
               /> */}
-              {loginAvailable === true ? (
+              {/* {loginAvailable === true ? (
                 <View style={{ alignItems: "center" }}>
                   <AppleAuthentication.AppleAuthenticationButton
                     buttonType={
@@ -285,7 +285,7 @@ const SignupScreen = ({ navigation }) => {
                     onPress={signUpWithApple}
                   />
                 </View>
-              ) : null}
+              ) : null} */}
             </View>
           </ScrollView>
         </Animatable.View>

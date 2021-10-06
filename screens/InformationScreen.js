@@ -483,7 +483,7 @@ const InformationScreen = ({ navigation }) => {
                       text: "Si",
                       style: "default",
                       onPress: () => {
-                        setNotify(true);
+                        // setNotify(true);
                         setType("Contact");
                         actionSheetRef.current?.setModalVisible();
                       },
@@ -572,7 +572,7 @@ const InformationScreen = ({ navigation }) => {
                   placeholder="Titulo"
                   placeholderTextColor="#666666"
                   style={styles.textInput}
-                  value={promoData.Title}
+                  value={promoData.Title ? promoData.Title : ""}
                   onChangeText={(text) =>
                     setPromoData({ ...promoData, Title: text })
                   }
@@ -586,7 +586,7 @@ const InformationScreen = ({ navigation }) => {
                   placeholder="Subtitulo"
                   placeholderTextColor="#666666"
                   style={styles.textInput}
-                  value={promoData.Subtitle}
+                  value={promoData.Subtitle ? promoData.Subtitle : ""}
                   onChangeText={(text) =>
                     setPromoData({ ...promoData, Subtitle: text })
                   }
@@ -600,7 +600,7 @@ const InformationScreen = ({ navigation }) => {
                   placeholder="Descripcion"
                   placeholderTextColor="#666666"
                   style={styles.textInput}
-                  value={promoData.Description}
+                  value={promoData.Description ? promoData.Description : ""}
                   onChangeText={(text) =>
                     setPromoData({ ...promoData, Description: text })
                   }
@@ -614,7 +614,7 @@ const InformationScreen = ({ navigation }) => {
                   placeholder="e.j pagina web, google maps, instagram etc"
                   placeholderTextColor="#666666"
                   style={styles.textInput}
-                  value={promoData.Extension}
+                  value={promoData.Extension ? promoData.Extension : ""}
                   onChangeText={(text) =>
                     setPromoData({ ...promoData, Extension: text })
                   }

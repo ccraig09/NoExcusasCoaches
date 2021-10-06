@@ -25,6 +25,8 @@ import Moment from "moment";
 import localization from "moment/locale/es-us";
 import "moment/locale/es";
 import { extendMoment } from "moment-range";
+import InfoText from "../components/InfoText";
+import { Input } from "react-native-elements";
 
 import { AuthContext } from "../navigation/AuthProvider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -59,6 +61,7 @@ const actionSheetRef = createRef();
 const EditClientScreen = ({ navigation, route }) => {
   const { user, editClient, logout } = useContext(AuthContext);
   const [image, setImage] = useState(null);
+  const [baseStartDate, setBaseStartDate] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [userInfo, setUserInfo] = useState([]);
@@ -76,30 +79,13 @@ const EditClientScreen = ({ navigation, route }) => {
 
   const moment = extendMoment(Moment);
 
-  const style = useAnimatedStyle(() => {
-    return {
-      top: withSpring(top.value, SPRING_CONFIG),
-    };
-  });
-  const getsureHandler = useAnimatedGestureHandler({
-    onStart(_, context) {
-      context.startTop = top.value;
-    },
-    onActive(event, context) {
-      top.value = context.startTop + event.translationY;
-    },
-    onEnd() {
-      //Dismissing snap point
-      if (top.value > dimensions.height / 2 + 200) {
-        top.value = dimensions.height;
-      } else {
-        top.value = dimensions.height / 2;
-      }
-    },
-  });
-
   let catArray = ["Eligir Plan", "3 dias", "6 dias"];
   let catOptions = catArray;
+  const dateHandlerBaseStart = useCallback(async (date) => {
+    setBaseStartDate(false);
+    var dateChanged = moment(date).format("DD-MM-YYYY");
+    setUserInfo({ ...userInfo, BaseStartDate: dateChanged });
+  });
 
   const dateHandlerStart = useCallback(async (date) => {
     setStartDate(false);
@@ -127,7 +113,7 @@ const EditClientScreen = ({ navigation, route }) => {
       }
       // }
     })();
-    console.log(selectedClient.clientData);
+    console.log("this the selected", selectedClient.clientData);
     setUserInfo(selectedClient.clientData);
     setImage(selectedClient.clientData.userImg);
 
@@ -541,24 +527,312 @@ const EditClientScreen = ({ navigation, route }) => {
             </View>
           )}
         </TouchableOpacity>
+        <View style={styles.action}>
+          <Input
+            label="Notas"
+            leftIcon={{ type: "font-awesome", name: "sticky-note-o" }}
+            placeholder={"Notas Adicionales"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.notes : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, notes: text })}
+            autoCorrect={false}
+            returnKeyType="done"
+            multiline
+          />
+        </View>
 
-        {uploading ? (
-          <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <Text>{transferred}% Completado</Text>
-            <ActivityIndicator size="large" color="0000ff" />
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.commandButton}
-            onPress={submitChanges}
+        <InfoText text="Informacion Basico" />
+        <View style={styles.action}>
+          <Input
+            label="Edad"
+            leftIcon={{ type: "font-awesome", name: "user-o" }}
+            placeholder={"Edad"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Age : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Age: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Estatura"
+            leftIcon={{ type: "font-awesome", name: "user-o" }}
+            placeholder={"Estatura"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Height : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Height: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Peso"
+            leftIcon={{ type: "font-awesome", name: "user-o" }}
+            placeholder={"Peso"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Weight : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Weight: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            setShowPicker((prevState) => !prevState);
+          }}
+          style={styles.action}
+        >
+          <FontAwesome name="calendar" size={20} />
+          <Text style={styles.textInput}>
+            Género: {userInfo ? userInfo.Gender : ""}
+          </Text>
+        </TouchableOpacity>
+
+        {showPicker && (
+          <View
+            style={{
+              // flex: 1,
+              width: "90%",
+              // height: "50%",
+              marginRight: 10,
+              alignContent: "center",
+              justifyContent: "center",
+            }}
           >
-            <Text style={styles.panelButtonTitle}>Guardar</Text>
-          </TouchableOpacity>
+            <Picker
+              selectedValue={picked}
+              mode="dropdown"
+              value={userInfo ? userInfo.Gender : ""}
+              style={{
+                // height: 50,
+                // marginTop: 20,
+                marginBottom: 10,
+                width: "100%",
+                justifyContent: "center",
+              }}
+              itemStyle={{ fontSize: 16 }}
+              onValueChange={(picked) =>
+                setUserInfo({ ...userInfo, Gender: picked })
+              }
+              // setShowPicker(false);
+            >
+              {/* {genderOptions.map((item, index) => { */}
+              <Picker.Item label="Elige un género" color="grey" value="N/A" />
+              <Picker.Item label="Masculino" color="blue" value="M" />
+              <Picker.Item label="Femenino" color="red" value="F" />
+            </Picker>
+            <Button
+              style={{ marginTop: 20 }}
+              title="Guardar"
+              onPress={() => setShowPicker(false)}
+            />
+          </View>
         )}
+        {/* </TouchableOpacity> */}
+        <InfoText text="Evaluacion" />
+        <TouchableOpacity
+          style={styles.action}
+          onPress={() => {
+            setBaseStartDate((prevState) => !prevState);
+          }}
+        >
+          <FontAwesome name="calendar-check-o" size={20} />
+          <Text style={styles.textInput}>
+            Fecha de Inicio: {userInfo ? userInfo.BaseStartDate : ""}
+          </Text>
 
-        {/* </Animated.View> */}
-        <Text style={{ alignSelf: "center" }}>User Id: {userInfo.userId}</Text>
+          {baseStartDate && (
+            <View>
+              <DateTimePicker
+                mode="date"
+                isVisible={baseStartDate}
+                locale="es-ES"
+                onConfirm={
+                  (date) => {
+                    dateHandlerBaseStart(date);
+                  }
+                  // this.handleDatePicked(date, "start", "showStart")
+                }
+                onCancel={() => {
+                  setBaseStartDate(false);
+                }}
+                cancelTextIOS={"Cancelar"}
+                confirmTextIOS={"Confirmar"}
+                headerTextIOS={"Elige una fecha"}
+              />
+            </View>
+          )}
+        </TouchableOpacity>
+        <View style={styles.action}>
+          <Input
+            label="IMC"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"IMC"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Imc : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Imc: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Grasa"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Grasa"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Grasa : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Grasa: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Musculo"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Musculo"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Musculo : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Musculo: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Metabolismo Basal"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Metabolismo Basal"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Basal : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Basal: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Meta Metabolismo Basal"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Meta Metabolismo Basal"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.GoalBasal : ""}
+            onChangeText={(text) =>
+              setUserInfo({ ...userInfo, GoalBasal: text })
+            }
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Agua"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Agua"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Agua : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Agua: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Proteina"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Proteina"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Proteina : ""}
+            onChangeText={(text) =>
+              setUserInfo({ ...userInfo, Proteina: text })
+            }
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Masa Osea"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Masa Osea"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Osea : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Osea: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Edad Metabolica"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Edad Metabolica"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Metabolica : ""}
+            onChangeText={(text) =>
+              setUserInfo({ ...userInfo, Metabolica: text })
+            }
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
+        <View style={styles.action}>
+          <Input
+            label="Grasa Viseral"
+            leftIcon={{ type: "font-awesome", name: "line-chart" }}
+            placeholder={"Grasa Viseral"}
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={userInfo ? userInfo.Viseral : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, Viseral: text })}
+            autoCorrect={false}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+        </View>
       </ScrollView>
+
+      {uploading ? (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text>{transferred}% Completado</Text>
+          <ActivityIndicator size="large" color="0000ff" />
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.commandButton} onPress={submitChanges}>
+          <Text style={styles.panelButtonTitle}>Guardar</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* </Animated.View> */}
+      <Text style={{ alignSelf: "center" }}>User Id: {userInfo.userId}</Text>
     </SafeAreaView>
   );
 };
@@ -624,6 +898,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: Colors.noExprimary,
     alignItems: "center",
+    alignSelf: "center",
+
     marginVertical: 7,
     width: 200,
   },
