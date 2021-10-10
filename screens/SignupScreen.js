@@ -262,7 +262,7 @@ const SignupScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <View>
-              <SocialButton
+              {/* <SocialButton
                 buttonTitle="Gmail"
                 btnType="google"
                 color="#de4d41"
@@ -270,8 +270,8 @@ const SignupScreen = ({ navigation }) => {
                 onPress={() => {
                   googleLoginHandler();
                 }}
-              />
-              {loginAvailable === true ? (
+              /> */}
+              {/* {loginAvailable === true ? (
                 <View style={{ alignItems: "center" }}>
                   <AppleAuthentication.AppleAuthenticationButton
                     buttonType={
@@ -285,7 +285,7 @@ const SignupScreen = ({ navigation }) => {
                     onPress={signUpWithApple}
                   />
                 </View>
-              ) : null}
+              ) : null} */}
             </View>
           </ScrollView>
         </Animatable.View>

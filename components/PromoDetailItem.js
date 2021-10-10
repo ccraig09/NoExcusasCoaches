@@ -5,6 +5,7 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  Dimensions,
   ActivityIndicator,
   StatusBar,
   Image,
@@ -13,9 +14,9 @@ import {
 import styled from "styled-components";
 import * as Linking from "expo-linking";
 
+const screenHeight = Dimensions.get("window").height;
 const PromoDetailItem = (props) => {
   const [isLoading, setIsLoading] = useState(false);
-
   // let logoimg = "../assets/icon-noexlogo.png";
   console.log(props.description, props.extension);
   return (
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   Cover: {
-    height: 475,
+    height: screenHeight / 2.5,
   },
   Image: {
     width: "100%",

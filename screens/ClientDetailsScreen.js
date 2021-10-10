@@ -7,19 +7,30 @@ import {
   FlatList,
   Image,
   StatusBar,
+  Alert,
   SafeAreaView,
   Dimensions,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Colors from "../constants/Colors";
 import { ListItem, Avatar } from "react-native-elements";
+import { Input } from "react-native-elements";
+import { AuthContext } from "../navigation/AuthProvider";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
+  const { notificationReceipt } = useContext(AuthContext);
+
   const { id, data } = route.params;
+  const [notify, setNotify] = useState(false);
+  const [notifyTitle, setNotifyTitle] = useState("");
+  const [notifySubtitle, setNotifySubtitle] = useState("");
+
   const selectedClient = data.find((key) => key.userId === id);
 
   const list = [
+    //map out details?
     {
       title: "Plan:",
       data: selectedClient.plan,
@@ -31,6 +42,10 @@ const ClientDetailsScreen = ({ route, navigation }) => {
     {
       title: "Fecha de vencimiento:",
       data: selectedClient.endDate,
+    },
+    {
+      title: "Notas:",
+      data: selectedClient.notes,
     },
     {
       title: "Metas:",
@@ -45,6 +60,35 @@ const ClientDetailsScreen = ({ route, navigation }) => {
       data: selectedClient.history,
     },
   ];
+
+  const triggerNotificationHandler = () => {
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: selectedClient.expoPushToken,
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+    notificationReceipt(
+      notifyTitle,
+      notifySubtitle,
+      selectedClient.expoPushToken,
+      selectedClient.FirstName,
+      selectedClient.LastName
+    );
+    Alert.alert("Notification Enviado!", "");
+    setNotify(false);
+    setNotifyTitle("");
+    setNotifySubtitle("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,12 +110,18 @@ const ClientDetailsScreen = ({ route, navigation }) => {
               });
             }}
           >
-            <Avatar.Accessory
-              name="pencil-outline"
-              type="material-community"
-              size={40}
-              // color="black"
-            />
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Edit");
+              }}
+            >
+              <Avatar.Accessory
+                name="pencil-outline"
+                type="material-community"
+                size={40}
+                // color="black"
+              />
+            </TouchableOpacity>
           </Avatar>
         </TouchableOpacity>
       </View>
@@ -82,7 +132,67 @@ const ClientDetailsScreen = ({ route, navigation }) => {
 
       <Text style={styles.userInfoTitle}>{selectedClient.Phone}</Text>
       <Text style={styles.userInfoTitle}>{selectedClient.email}</Text>
-      <View style={styles.userBtnWrapper}></View>
+      <View style={styles.userBtnWrapper}>
+        <Button
+          title={"Enviar notificacion"}
+          onPress={() => {
+            setNotify(true);
+          }}
+        />
+      </View>
+      {notify && (
+        <View>
+          <View style={styles.action}>
+            <Input
+              label="Titulo"
+              leftIcon={{ type: "font-awesome", name: "edit" }}
+              placeholder="Titulo"
+              placeholderTextColor="#666666"
+              style={styles.textInput}
+              value={notifyTitle}
+              onChangeText={(text) => setNotifyTitle(text)}
+              autoCorrect={false}
+            />
+          </View>
+          <View style={styles.action}>
+            <Input
+              label="Subtitulo"
+              leftIcon={{ type: "font-awesome", name: "edit" }}
+              placeholder="Subtitulo"
+              placeholderTextColor="#666666"
+              style={styles.textInput}
+              value={notifySubtitle}
+              onChangeText={(text) => setNotifySubtitle(text)}
+              autoCorrect={false}
+            />
+          </View>
+          <TouchableOpacity
+            style={
+              notifyTitle === "" || notifySubtitle === ""
+                ? styles.commandButtonDsiabled
+                : styles.commandButton
+            }
+            onPress={() => {
+              triggerNotificationHandler();
+            }}
+            disabled={
+              notifyTitle === "" || notifySubtitle === "" ? true : false
+            }
+          >
+            <Text style={styles.panelButtonTitle}>Enviar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.commandButton}
+            onPress={() => {
+              setNotify(false);
+              setNotifyTitle("");
+              setNotifySubtitle("");
+            }}
+          >
+            <Text style={styles.panelButtonTitle}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <View>
         <Text style={styles.userInfoPoints}>
           Puntos Acumulados: {selectedClient.points}
@@ -202,5 +312,41 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     textAlign: "center",
+  },
+  action: {
+    flexDirection: "row",
+    // marginTop: 5,
+    // marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+    marginHorizontal: 10,
+  },
+  textInput: {
+    flex: 1,
+    // marginTop: Platform.OS === "ios" ? 0 : -12,
+    paddingLeft: 10,
+    color: "#05375a",
+  },
+  panelButtonTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "white",
+  },
+  commandButtonDsiabled: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "silver",
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 10,
+  },
+  commandButton: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: Colors.noExprimary,
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 10,
   },
 });

@@ -178,9 +178,26 @@ const ClientListScreen = ({ navigation }) => {
                   points,
                   startDate,
                   endDate,
+                  expoPushToken,
                   goal,
                   history,
                   sport,
+                  Age,
+                  Height,
+                  Weight,
+                  Gender,
+                  BaseStartDate,
+                  Imc,
+                  Grasa,
+                  Musculo,
+                  Basal,
+                  GoalBasal,
+                  Agua,
+                  Proteina,
+                  Osea,
+                  Metabolica,
+                  Viseral,
+                  notes,
                   userId,
                 } = doc.data();
                 list.push({
@@ -191,12 +208,29 @@ const ClientListScreen = ({ navigation }) => {
                   email: email,
                   Phone: Phone,
                   plan: plan,
+                  expoPushToken: expoPushToken,
                   points: points,
                   startDate: startDate,
                   endDate: endDate,
                   goal: goal,
                   history: history,
                   sport: sport,
+                  Age,
+                  Height,
+                  Weight,
+                  Gender,
+                  BaseStartDate,
+                  Imc,
+                  Grasa,
+                  Musculo,
+                  Basal,
+                  GoalBasal,
+                  Agua,
+                  Proteina,
+                  Osea,
+                  Metabolica,
+                  Viseral,
+                  notes: notes,
                   createdAt: createdAt,
                   userId: userId,
                 });
@@ -371,7 +405,10 @@ const ClientListScreen = ({ navigation }) => {
       />
 
       <View style={styles.TitleBar}></View>
-      <Subtitle>{"Clientes".toUpperCase()}</Subtitle>
+      <Subtitle>
+        {"Clientes".toUpperCase()} ( {clientList.length} )
+      </Subtitle>
+      <Text></Text>
       <FlatList
         showsHorizontalScrollIndicator={false}
         data={clientList}

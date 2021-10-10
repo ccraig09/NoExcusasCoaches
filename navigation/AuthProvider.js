@@ -15,6 +15,8 @@ export const AuthProvider = ({ children }) => {
   const dbP = firebase.firestore().collection("Products");
   const dbC = firebase.firestore().collection("Coaches");
   const dbPromo = firebase.firestore().collection("Promos");
+  const dbN = firebase.firestore().collection("NotificationsHistory");
+  const dbLog = firebase.firestore().collection("ScanHistory");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -182,6 +184,7 @@ export const AuthProvider = ({ children }) => {
                   FirstName: "",
                   LastName: "",
                   Phone: "",
+                  password,
                   email: email,
                   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                   userImg: null,
@@ -306,6 +309,52 @@ export const AuthProvider = ({ children }) => {
         },
 
         signUpWithApple: async () => {
+          console.log("signing up with Applleee");
+          const csrf = Math.random().toString(36).substring(2, 15);
+          const nonce = Math.random().toString(36).substring(2, 10);
+          const hashedNonce = await Crypto.digestStringAsync(
+            Crypto.CryptoDigestAlgorithm.SHA256,
+            nonce
+          );
+          const appleCredential = await AppleAuthentication.signInAsync({
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+            state: csrf,
+            nonce: hashedNonce,
+          });
+          const { identityToken, email, state } = appleCredential;
+
+          if (identityToken) {
+            console.log("apple token check", appleCredential);
+            const provider = new firebase.auth.OAuthProvider("apple.com");
+            const credential = provider.credential({
+              idToken: identityToken,
+              rawNonce: nonce, // nonce value from above
+            });
+            await firebase
+              .auth()
+              .signInWithCredential(credential)
+              .then(() => {
+                console.log(
+                  "loading current deets",
+                  firebase.auth().currentUser
+                );
+                dbC.doc(firebase.auth().currentUser.uid).set({
+                  userId: firebase.auth().currentUser.uid,
+                  FirstName: "",
+                  LastName: "",
+                  Phone: "",
+                  email: firebase.auth().currentUser.providerData[0].email,
+                  country: "",
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  userImg: null,
+                });
+              });
+          }
+        },
+        signInWithApple: async () => {
           const csrf = Math.random().toString(36).substring(2, 15);
           const nonce = Math.random().toString(36).substring(2, 10);
           const hashedNonce = await Crypto.digestStringAsync(
@@ -419,6 +468,26 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
+        notificationReceipt: async (title, subtitle, token, fName, lName) => {
+          try {
+            await dbN.doc().set(
+              {
+                userId: user.uid,
+                title,
+                subtitle,
+                token,
+                fName,
+                lName,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         uploadPromo: async (promoData, userImg, type) => {
           try {
             await dbPromo.doc().set(
@@ -437,11 +506,11 @@ export const AuthProvider = ({ children }) => {
             );
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
-            alert(errorMes);
-            console.log(errorMes);
+            alert(e);
+            console.log(e);
           }
         },
-        editClient: async (userInfo, userImg) => {
+        editClient: async (userInfo, userImg, notes) => {
           try {
             await db.doc(userInfo.userId).set(
               {
@@ -456,13 +525,29 @@ export const AuthProvider = ({ children }) => {
                 goal: userInfo.goal,
                 history: userInfo.history,
                 sport: userInfo.sport,
+                Age: userInfo.Age,
+                Height: userInfo.Height,
+                Weight: userInfo.Weight,
+                Gender: userInfo.Gender,
+                BaseStartDate: userInfo.BaseStartDate,
+                Imc: userInfo.Imc,
+                Grasa: userInfo.Grasa,
+                Musculo: userInfo.Musculo,
+                Basal: userInfo.Basal,
+                GoalBasal: userInfo.GoalBasal,
+                Agua: userInfo.Agua,
+                Proteina: userInfo.Proteina,
+                Osea: userInfo.Osea,
+                Metabolica: userInfo.Metabolica,
+                Viseral: userInfo.Viseral,
+                notes: notes,
               },
               { merge: true }
             );
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
-            alert(errorMes);
-            console.log(errorMes);
+            alert(e);
+            console.log(e);
           }
         },
         deletePromoImage: async (key, title) => {
@@ -499,6 +584,29 @@ export const AuthProvider = ({ children }) => {
               {
                 lastSignIn: lastSignIn,
                 points: increment,
+                lastSignInTime: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        logScan: async (userInfo, date) => {
+          const increment = firebase.firestore.FieldValue.increment(1);
+
+          try {
+            await dbLog.doc().set(
+              {
+                scanDate: date,
+                points: increment,
+                FirstName: userInfo.FirstName,
+                LastName: userInfo.LastName,
+                email: userInfo.email,
+                userId: userInfo.userId,
+                userImg: userInfo.userImg,
                 lastSignInTime: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }
