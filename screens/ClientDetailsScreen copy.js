@@ -18,46 +18,16 @@ import Colors from "../constants/Colors";
 import { ListItem, Avatar } from "react-native-elements";
 import { Input } from "react-native-elements";
 import { AuthContext } from "../navigation/AuthProvider";
-import { useFocusEffect } from "@react-navigation/native";
-import firebase from "../components/firebase";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
   const { notificationReceipt } = useContext(AuthContext);
 
   const { id, data } = route.params;
   const [notify, setNotify] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(false);
   const [notifyTitle, setNotifyTitle] = useState("");
   const [notifySubtitle, setNotifySubtitle] = useState("");
 
-  // const selectedClient = data.find((key) => key.userId === id);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // console.log("loading home and user", user);
-      const fetchClientDetails = async () => {
-        try {
-          await firebase
-            .firestore()
-            .collection("Members")
-            .doc(id)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                console.log("Document data:", doc.data());
-                setSelectedClient(doc.data());
-              } else {
-                // doc.data() will be undefined in this case
-                console.log("No such document!");
-              }
-            });
-        } catch (e) {
-          console.log(e);
-        }
-      };
-      fetchClientDetails();
-    }, [])
-  );
+  const selectedClient = data.find((key) => key.userId === id);
 
   const list = [
     //map out details?
@@ -145,9 +115,7 @@ const ClientDetailsScreen = ({ route, navigation }) => {
               type="material-community"
               size={40}
               onPress={() => {
-                navigation.navigate("EditClient", {
-                  clientData: selectedClient,
-                });
+                navigation.navigate("Edit");
               }}
               // color="black"
             />

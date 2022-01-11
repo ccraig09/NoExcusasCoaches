@@ -28,6 +28,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import NotificationButton from "../components/UI/NotificationButton";
 import { TextInput } from "react-native";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
 
 const currentHour = new Date().getHours();
 
@@ -48,6 +50,8 @@ const ClientListScreen = ({ navigation }) => {
   const [userName, setUserName] = useState();
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState(null);
+
+  const moment = extendMoment(Moment);
 
   // const moment = extendMoment(Moment);
 
@@ -200,6 +204,10 @@ const ClientListScreen = ({ navigation }) => {
                   notes,
                   userId,
                 } = doc.data();
+                var date1 = moment().startOf("day");
+                var date2 = moment(endDate, "DD-MM-YYYY");
+                const dateDiff = moment.duration(date2.diff(date1)).asDays();
+
                 list.push({
                   key: doc.id,
                   FirstName: FirstName,
@@ -233,10 +241,16 @@ const ClientListScreen = ({ navigation }) => {
                   notes: notes,
                   createdAt: createdAt,
                   userId: userId,
+                  dateDiff: dateDiff,
                 });
+                // console.log("date diffs", dateDiff);
               });
             });
-          setClientList(list);
+          // setClientList(list);
+          setClientList(
+            list.sort((a, b) => (a.dateDiff < b.dateDiff ? 1 : -1))
+          );
+
           setInMemoryClientes(list);
           //   console.log("coachlist?:", coachList);
           // console.log("this the user?", user);

@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   TextInput,
   Text,
   SafeAreaView,
@@ -27,6 +28,7 @@ import "moment/locale/es";
 import { extendMoment } from "moment-range";
 import InfoText from "../components/InfoText";
 import { Input } from "react-native-elements";
+import InputSpinner from "react-native-input-spinner";
 
 import { AuthContext } from "../navigation/AuthProvider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -34,6 +36,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import ActionSheet from "react-native-actions-sheet";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import Colors from "../constants/Colors";
 import { PanGestureHandler, ScrollView } from "react-native-gesture-handler";
@@ -60,6 +63,7 @@ const actionSheetRef = createRef();
 
 const EditClientScreen = ({ navigation, route }) => {
   const { user, editClient, logout } = useContext(AuthContext);
+  const selectedClient = route.params;
   const [image, setImage] = useState(null);
   const [baseStartDate, setBaseStartDate] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -75,7 +79,6 @@ const EditClientScreen = ({ navigation, route }) => {
 
   const dimensions = useWindowDimensions();
   const top = useSharedValue(dimensions.height);
-  const selectedClient = route.params;
   let actionSheet;
 
   const moment = extendMoment(Moment);
@@ -181,11 +184,21 @@ const EditClientScreen = ({ navigation, route }) => {
       imageUrl = null;
     }
 
-    editClient(userInfo, imageUrl, notes);
+    await editClient(userInfo, imageUrl);
+
+    if (image == null) {
+      Alert.alert(
+        "Cliente Actualizado!",
+        "El Cliente se ha actualizado exitosamente!"
+      );
+    }
+
+    navigation.goBack();
   };
 
   const uploadImage = async () => {
     if (image == null) {
+      console.log("image is null");
       return null;
     }
     // const uploadUri = image;
@@ -324,8 +337,42 @@ const EditClientScreen = ({ navigation, route }) => {
               : ""}
           </Text>
         </Text>
+        <KeyboardAwareScrollView
+        // keyboardVerticalOffset={80}
+        // behavior={"padding"}
+        >
+          <View style={[styles.modalItemBorderCategoria, { marginBottom: 20 }]}>
+            <Text style={styles.modalTextTitle}>Puntos: </Text>
+
+            <InputSpinner
+              max={10000}
+              min={0}
+              step={1}
+              fontSize={20}
+              onMax={(max) => {
+                Alert.alert("llego al Maximo", "El maximo seria 1000");
+              }}
+              skin={"clean"}
+              background={"#F5F3F3"}
+              // colorAsBackground={true}
+              colorMax={"red"}
+              width={"90%"}
+              colorMin={"green"}
+              colorLeft={Colors.noExprimary}
+              colorRight={Colors.noExprimary}
+              value={userInfo.points}
+              onChange={(num) => {
+                if (num === userInfo.points) {
+                  null;
+                } else {
+                  setUserInfo({ ...userInfo, points: num });
+                }
+              }}
+            />
+          </View>
+        </KeyboardAwareScrollView>
       </View>
-      <ScrollView>
+      <KeyboardAwareScrollView>
         <View style={styles.action}>
           <FontAwesome name="user-o" size={20} />
           <TextInput
@@ -532,14 +579,14 @@ const EditClientScreen = ({ navigation, route }) => {
           <Input
             label="Notas"
             leftIcon={{ type: "font-awesome", name: "sticky-note-o" }}
-            placeholder={selectedClient.notes ? selectedClient.notes : notes}
+            placeholder={userInfo.notes ? userInfo.notes : notes}
             placeholderTextColor="#666666"
             style={styles.textInput}
-            value={notes}
-            onChangeText={(text) => setNotes(text)}
+            value={userInfo ? userInfo.notes : ""}
+            onChangeText={(text) => setUserInfo({ ...userInfo, notes: text })}
             autoCorrect={false}
             returnKeyType="done"
-            multiline
+            // multiline
           />
         </View>
 
@@ -819,7 +866,7 @@ const EditClientScreen = ({ navigation, route }) => {
             returnKeyType="done"
           />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {uploading ? (
         <View style={{ justifyContent: "center", alignItems: "center" }}>
@@ -930,5 +977,29 @@ const styles = StyleSheet.create({
     // marginTop: Platform.OS === "ios" ? 0 : -12,
     paddingLeft: 10,
     color: "#05375a",
+  },
+  modalTextTitle: {
+    marginTop: 4,
+    marginBottom: 4,
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  modalItemBorderCategoria: {
+    backgroundColor: "#F5F3F3",
+    borderWidth: 2,
+    borderRadius: 8,
+    borderColor: "#F5F3F3",
+    alignItems: "center",
+    margin: 5,
+    padding: 5,
+    shadowColor: "silver",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.75,
+    shadowRadius: 1.84,
+    elevation: 1,
   },
 });

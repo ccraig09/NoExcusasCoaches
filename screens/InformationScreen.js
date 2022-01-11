@@ -60,6 +60,15 @@ const InformationScreen = ({ navigation }) => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
 
+  // const clients = clientList.map((code) => code.expoPushToken);
+  // const half_length = Math.ceil(clients.length / 2);
+  // var leftSide = clients.splice(0, half_length);
+  // let leftSide, rightSide;
+
+  // console.log("left", leftSide);
+  // console.log("right", rightSide);
+  // console.log("Clients list", leftSide);
+
   useFocusEffect(
     React.useCallback(() => {
       const fetchPromos = async () => {
@@ -241,6 +250,11 @@ const InformationScreen = ({ navigation }) => {
   const clientNotification = () => {
     const clients = clientList.map((code) => code.expoPushToken);
     console.log("Clients list", clients);
+    const m = Math.floor(clients.length / 2);
+    const [leftSide, rightSide] = [
+      clients.slice(0, m),
+      clients.slice(m, clients.length),
+    ];
     // Notifications.scheduleNotificationAsync({
     //   content: {
     //     title: "My first local notification",
@@ -259,7 +273,22 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: clients,
+        to: leftSide,
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: rightSide,
         sound: "default",
         // data: { extraData: scannedUser },
         title: `${notifyTitle}`,
@@ -458,6 +487,10 @@ const InformationScreen = ({ navigation }) => {
                       setType("Premio");
                       actionSheetRef.current?.setModalVisible();
                     },
+                  },
+                  {
+                    text: "Cancelar",
+                    style: "cancel",
                   },
                 ]);
               }}
@@ -673,6 +706,29 @@ const InformationScreen = ({ navigation }) => {
         />
         <Subtitle>{"Premios".toUpperCase()}</Subtitle>
 
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={premiolist}
+          renderItem={(itemData) => (
+            <PromoItem
+              image={itemData.item.userImg}
+              title={itemData.item.Title}
+              logo={itemData.item.logo}
+              caption={itemData.item.Caption}
+              extension={itemData.item.Extension}
+              subtitle={itemData.item.Subtitle}
+              onClassClick={() => {
+                navigation.navigate("PromoDetail", {
+                  promoData: itemData.item,
+                });
+              }}
+              onLongPress={() => {
+                deletePromoHandler(itemData.item.key, itemData.item.Caption);
+              }}
+            />
+          )}
+        />
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
