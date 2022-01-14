@@ -33,6 +33,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import NotificationButton from "../components/UI/NotificationButton";
+import NotificationButtonHistory from "../components/UI/NotificationButtonHistory";
 import * as Linking from "expo-linking";
 import Pedometer from "../components/Pedometer";
 const currentHour = new Date().getHours();
@@ -401,6 +402,15 @@ const HomeScreen = ({ navigation }) => {
                 });
               }}
             />
+          </View>
+          <View style={{ alignItems: "flex-end" }}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("NotificationHistory");
+              }}
+            >
+              <NotificationButtonHistory />
+            </TouchableOpacity>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <TouchableOpacity

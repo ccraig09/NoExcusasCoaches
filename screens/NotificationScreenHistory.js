@@ -10,7 +10,7 @@ import {
 import firebase from "../components/firebase";
 import { useFocusEffect } from "@react-navigation/native";
 
-const NotificationScreen = (props) => {
+const NotificationScreenHistory = (props) => {
   // this.state = {
   //   data: [
   //     {
@@ -73,41 +73,23 @@ const NotificationScreen = (props) => {
           const list = [];
           await firebase
             .firestore()
-            .collection("Notifications")
+            .collection("ClientNotificationHistory")
             .get()
             .then((querySnapshot) => {
               querySnapshot.forEach((doc) => {
-                const {
-                  Title,
-                  Cell,
-                  timestamp,
-                  userId,
-                  Goals,
-                  Plan,
-                  extraInfo,
-                  Time,
-                  Status,
-                  startDate,
-                  Suggestion,
-                } = doc.data();
+                const { title, subtitle, timestamp, userId } = doc.data();
                 list.push({
                   key: doc.id,
-                  Title: Title,
-                  Cell: Cell,
+                  title: title,
+                  subtitle: subtitle,
                   timestamp: timestamp.toDate().toDateString(),
                   userId: userId,
-                  Goals: Goals,
-                  Plan: Plan,
-                  extraInfo: extraInfo,
-                  Time: Time,
-                  Status: Status,
-                  startDate: startDate,
-                  Suggestion: Suggestion,
-                  sort: timestamp,
                 });
               });
             });
-          setNotificationList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
+          setNotificationList(
+            list.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+          );
         } catch (e) {
           console.log(e);
         }
@@ -147,90 +129,10 @@ const NotificationScreen = (props) => {
             <View style={styles.content}>
               <View style={mainContentStyle}>
                 <View style={styles.text}>
-                  <Text
-                    style={
-                      ([styles.name],
-                      {
-                        color:
-                          Notification.Title === "Reservacion"
-                            ? "#1E90FF"
-                            : "purple",
-                        fontWeight: "bold",
-                      })
-                    }
-                  >
-                    {Notification.Title}
-                  </Text>
-                  {Notification.Status ? (
-                    <Text
-                      style={{
-                        color:
-                          Notification.Status === "Pendiente"
-                            ? "orange"
-                            : "green",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {Notification.Status}
-                    </Text>
-                  ) : null}
-                  {Notification.Plan ? (
-                    <Text style={styles.category}>
-                      Plan:{" "}
-                      <Text style={styles.answer}>{Notification.Plan}</Text>
-                    </Text>
-                  ) : null}
-                  {Notification.startDate ? (
-                    <Text style={styles.category}>
-                      Desde:{" "}
-                      <Text style={styles.answer}>
-                        {Notification.startDate}
-                      </Text>
-                    </Text>
-                  ) : null}
-                  {Notification.Suggestion ? (
-                    <Text style={styles.category}>
-                      Surgenica:{" "}
-                      <Text style={styles.answer}>
-                        {Notification.Suggestion}
-                      </Text>
-                    </Text>
-                  ) : null}
-
-                  {Notification.Time ? (
-                    <Text style={styles.category}>
-                      Horario:{" "}
-                      <Text style={styles.answer}>{Notification.Time}</Text>
-                    </Text>
-                  ) : null}
-                  {Notification.Goals ? (
-                    <Text style={styles.category}>
-                      Metas:{" "}
-                      <Text style={styles.answer}>{Notification.Goals}</Text>
-                    </Text>
-                  ) : null}
-                  {Notification.Cell ? (
-                    <Text style={styles.category}>
-                      Cell:{" "}
-                      <Text style={styles.answer}>{Notification.Cell}</Text>
-                    </Text>
-                  ) : null}
-                  {Notification.extraInfo ? (
-                    <Text style={styles.category}>
-                      Extra Info:{" "}
-                      <Text style={styles.answer}>
-                        {Notification.extraInfo}
-                      </Text>
-                    </Text>
-                  ) : null}
+                  <Text style={styles.name}>{Notification.title}</Text>
+                  <Text>{Notification.subtitle}</Text>
                 </View>
-                {Notification.Suggestion || Notification.Plan ? (
-                  <Text style={styles.timeAgo}>{Notification.timestamp}</Text>
-                ) : (
-                  <Text style={([styles.timeAgo], { color: "red" })}>
-                    Revisar Database
-                  </Text>
-                )}
+                <Text style={styles.timeAgo}>{Notification.timestamp}</Text>
               </View>
               {attachment}
             </View>
@@ -262,12 +164,6 @@ const styles = StyleSheet.create({
     // flexDirection: "row",
     // flexWrap: "wrap",
   },
-  category: {
-    fontWeight: "bold",
-  },
-  answer: {
-    fontWeight: "normal",
-  },
   content: {
     flex: 1,
     marginLeft: 16,
@@ -298,8 +194,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     color: "#1E90FF",
-    fontWeight: "bold",
   },
 });
 
-export default NotificationScreen;
+export default NotificationScreenHistory;

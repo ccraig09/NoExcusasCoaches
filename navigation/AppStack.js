@@ -8,6 +8,7 @@ import EditProfileScreen from "../screens/EditProfileScreen";
 import ClientListScreen from "../screens/ClientListScreen";
 import InformationScreen from "../screens/InformationScreen";
 import NotificationScreen from "../screens/NotificationScreen";
+import NotificationScreenHistory from "../screens/NotificationScreenHistory";
 import PromoDetailScreen from "../screens/PromoDetailScreen";
 import CoachDetailsScreen from "../screens/CoachDetailsScreen";
 import ClientDetailsScreen from "../screens/ClientDetailsScreen";
@@ -233,6 +234,14 @@ const AppStack = ({ navigation }) => (
       component={NotificationScreen}
       options={({ navigation }) => ({
         title: "Notificaciones",
+        headerShown: true,
+      })}
+    />
+    <Stack.Screen
+      name="NotificationHistory"
+      component={NotificationScreenHistory}
+      options={({ navigation }) => ({
+        title: "Notificaciones Pasados",
         headerShown: true,
       })}
     />
