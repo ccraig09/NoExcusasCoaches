@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
   const dbN = firebase.firestore().collection("ClientNotificationHistory");
   const dbLog = firebase.firestore().collection("ScanHistory");
   const dbNotifications = firebase.firestore().collection("Notifications");
+  const dbUA = firebase.firestore().collection("User Announcements");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -469,7 +470,16 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
-        notificationReceipt: async (title, subtitle, token, fName, lName) => {
+        notificationReceipt: async (
+          title,
+          subtitle,
+          token,
+          fName,
+          lName,
+          userInfo,
+          state,
+          boolean
+        ) => {
           try {
             await dbN.doc().set(
               {
@@ -479,6 +489,53 @@ export const AuthProvider = ({ children }) => {
                 token,
                 fName,
                 lName,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+            await db
+              .doc(userInfo.userId)
+              .collection("User Notifications")
+              .doc()
+              .set(
+                {
+                  userId: user.uid,
+                  title,
+                  subtitle,
+                  token,
+                  fName,
+                  lName,
+                  isRead: boolean,
+                  Status: state,
+                  Type: "Personal",
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                },
+                { merge: true }
+              );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        storeNotification: async (title, subtitle) => {
+          try {
+            await dbN.doc().set(
+              {
+                userId: user.uid,
+                title,
+                subtitle,
+
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+            await dbUA.doc().set(
+              {
+                userId: user.uid,
+                title,
+                subtitle,
+                Type: "Anuncio",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }

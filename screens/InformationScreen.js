@@ -39,7 +39,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const actionSheetRef = createRef();
 const InformationScreen = ({ navigation }) => {
-  const { user, logout, uploadPromo, deletePromoImage } =
+  const { user, logout, uploadPromo, deletePromoImage, storeNotification } =
     useContext(AuthContext);
   const [image, setImage] = useState(null);
   const [type, setType] = useState("");
@@ -209,9 +209,18 @@ const InformationScreen = ({ navigation }) => {
     }
   };
 
-  const triggerNotificationHandler = () => {
+  const triggerNotificationHandler = async () => {
+    await storeNotification(
+      "Nueva Promocion!",
+      "Tenemos una nueva promocion! Abrir la app para ver los detallas"
+    );
     const clients = clientList.map((code) => code.expoPushToken);
     console.log("Clients list", clients);
+    const m = Math.floor(clients.length / 2);
+    const [leftSide, rightSide] = [
+      clients.slice(0, m),
+      clients.slice(m, clients.length),
+    ];
     // Notifications.scheduleNotificationAsync({
     //   content: {
     //     title: "My first local notification",
@@ -230,7 +239,22 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: clients,
+        to: leftSide,
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: "Nueva Promocion!",
+        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: rightSide,
         sound: "default",
         // data: { extraData: scannedUser },
         title: "Nueva Promocion!",
@@ -240,6 +264,7 @@ const InformationScreen = ({ navigation }) => {
   };
 
   const clientNotificationHandler = async () => {
+    await storeNotification(notifyTitle, notifySubtitle);
     await clientNotification();
     Alert.alert("Notification Enviado!", "");
     setNotify(false);

@@ -451,7 +451,7 @@ const HomeScreen = ({ navigation }) => {
               }}
             />
           </View>
-          <View style={{ alignItems: "flex-end" }}>
+          {/* <View style={{ alignItems: "flex-end" }}>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("NotificationHistory");
@@ -459,7 +459,7 @@ const HomeScreen = ({ navigation }) => {
             >
               <NotificationButtonHistory />
             </TouchableOpacity>
-          </View>
+          </View> */}
           <View style={{ alignItems: "flex-end" }}>
             <TouchableOpacity
               onPress={() => {

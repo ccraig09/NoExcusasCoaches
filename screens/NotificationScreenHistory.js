@@ -107,7 +107,7 @@ const NotificationScreenHistory = (props) => {
         return <View style={styles.separator} />;
       }}
       keyExtractor={(item, index) => {
-        return index;
+        return index.toString();
       }}
       renderItem={(item) => {
         const Notification = item.item;
