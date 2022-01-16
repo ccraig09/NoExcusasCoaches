@@ -236,8 +236,8 @@ const NotificationScreen = (props) => {
                           true,
                           Notification.userInfo,
                           Notification.Title,
-                          "Tu solicitud a sido aprobada!",
-                          "El estado de tu solicitud ha cambiado a aprobada"
+                          "Aprobado ☑️",
+                          "Tu solicitud ha sido aceptada"
                         ),
                     }
                   : {
@@ -249,8 +249,8 @@ const NotificationScreen = (props) => {
                           true,
                           Notification.userInfo,
                           Notification.Title,
-                          "Novedades por tu solicitud",
-                          "El estado de tu solicitud cambio a pendiente, verifica que todo este correcto"
+                          "Ups!",
+                          "Tu solicitud cambio a pendiente, verifica que todo este correcto."
                         ),
                     },
               ]);
