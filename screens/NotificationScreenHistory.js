@@ -84,12 +84,11 @@ const NotificationScreenHistory = (props) => {
                   subtitle: subtitle,
                   timestamp: timestamp.toDate().toDateString(),
                   userId: userId,
+                  sort: timestamp,
                 });
               });
             });
-          setNotificationList(
-            list.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
-          );
+          setNotificationList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
         } catch (e) {
           console.log(e);
         }

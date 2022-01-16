@@ -2,11 +2,11 @@ import React from "react";
 import styled from "styled-components/native";
 import { NotificationIcon } from "../../components/UI/icons";
 
-const NotificationButton = () => (
+const NotificationButton = (props) => (
   <Container>
     <NotificationIcon />
     <Bubble>
-      <Text>5</Text>
+      <Text>{props.length}</Text>
     </Bubble>
   </Container>
 );
@@ -21,8 +21,8 @@ const Container = styled.View`
 `;
 
 const Bubble = styled.View`
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   background: #3c4560;
   position: absolute;
   top: 0px;

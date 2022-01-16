@@ -15,8 +15,9 @@ export const AuthProvider = ({ children }) => {
   const dbP = firebase.firestore().collection("Products");
   const dbC = firebase.firestore().collection("Coaches");
   const dbPromo = firebase.firestore().collection("Promos");
-  const dbN = firebase.firestore().collection("NotificationsHistory");
+  const dbN = firebase.firestore().collection("ClientNotificationHistory");
   const dbLog = firebase.firestore().collection("ScanHistory");
+  const dbNotifications = firebase.firestore().collection("Notifications");
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -628,6 +629,42 @@ export const AuthProvider = ({ children }) => {
                 expoPushToken,
 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        readUpdate: async (key, boolean) => {
+          try {
+            // console.log("uploading expo token", expoPushToken);
+
+            await dbNotifications.doc(key).set(
+              {
+                isRead: boolean,
+
+                readDate: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
+        accept: async (key, state, boolean) => {
+          try {
+            // console.log("uploading expo token", expoPushToken);
+
+            await dbNotifications.doc(key).set(
+              {
+                Status: state,
+                isRead: boolean,
+                readDate: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }
             );

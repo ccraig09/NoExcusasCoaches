@@ -21,8 +21,8 @@ const Container = styled.View`
 `;
 
 const Bubble = styled.View`
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #3c4560;
   position: absolute;
   top: 0px;

@@ -64,7 +64,7 @@ const HomeScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState(null);
   const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
+  const [notificationList, setNotificationList] = useState();
   const notificationListener = useRef();
   const responseListener = useRef();
 
@@ -295,7 +295,55 @@ const HomeScreen = ({ navigation }) => {
           console.log(e);
         }
       };
-
+      const fetchNotifications = async () => {
+        try {
+          const list = [];
+          await firebase
+            .firestore()
+            .collection("Notifications")
+            .where("isRead", "==", false)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                const {
+                  Title,
+                  Cell,
+                  timestamp,
+                  userId,
+                  Goals,
+                  Plan,
+                  extraInfo,
+                  Time,
+                  Status,
+                  startDate,
+                  Suggestion,
+                  isRead,
+                } = doc.data();
+                list.push({
+                  key: doc.id,
+                  Title: Title,
+                  Cell: Cell,
+                  timestamp: timestamp.toDate().toDateString(),
+                  userId: userId,
+                  Goals: Goals,
+                  Plan: Plan,
+                  extraInfo: extraInfo,
+                  Time: Time,
+                  Status: Status,
+                  startDate: startDate,
+                  Suggestion: Suggestion,
+                  isRead: isRead,
+                  sort: timestamp,
+                });
+              });
+            });
+          console.log(list);
+          setNotificationList(list.length);
+        } catch (e) {
+          console.log(e);
+        }
+      };
+      fetchNotifications();
       fetchMemberDetails();
       fetchCoaches();
       AsyncStorage.getItem("userData").then((value) => {
@@ -418,7 +466,7 @@ const HomeScreen = ({ navigation }) => {
                 navigation.navigate("Notification");
               }}
             >
-              <NotificationButton />
+              <NotificationButton length={notificationList} />
             </TouchableOpacity>
           </View>
           <View style={{ alignItems: "flex-end" }}>

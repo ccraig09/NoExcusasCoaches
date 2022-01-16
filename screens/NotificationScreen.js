@@ -3,67 +3,19 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
   TouchableOpacity,
   Image,
   FlatList,
 } from "react-native";
+import { AuthContext } from "../navigation/AuthProvider";
 import firebase from "../components/firebase";
 import { useFocusEffect } from "@react-navigation/native";
 
 const NotificationScreen = (props) => {
-  // this.state = {
-  //   data: [
-  //     {
-  //       id: 3,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar7.png",
-  //       name: "March SoulLaComa",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "https://via.placeholder.com/100x100/FFB6C1/000000",
-  //     },
-  //     {
-  //       id: 2,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar6.png",
-  //       name: "John DoeLink",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "https://via.placeholder.com/100x100/20B2AA/000000",
-  //     },
-  //     {
-  //       id: 4,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar2.png",
-  //       name: "Finn DoRemiFaso",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "",
-  //     },
-  //     {
-  //       id: 5,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar3.png",
-  //       name: "Maria More More",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "",
-  //     },
-  //     {
-  //       id: 1,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar1.png",
-  //       name: "Frank Odalthh",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "https://via.placeholder.com/100x100/7B68EE/000000",
-  //     },
-  //     {
-  //       id: 6,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar4.png",
-  //       name: "Clark June Boom!",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "",
-  //     },
-  //     {
-  //       id: 7,
-  //       image: "https://bootdey.com/img/Content/avatar/avatar5.png",
-  //       name: "The googler",
-  //       text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.",
-  //       attachment: "",
-  //     },
-  //   ],
-  // };
+  const { user, readUpdate, accept, notificationReceipt } =
+    useContext(AuthContext);
+
   const [notificationList, setNotificationList] = useState([]);
 
   useFocusEffect(
@@ -89,6 +41,8 @@ const NotificationScreen = (props) => {
                   Status,
                   startDate,
                   Suggestion,
+                  isRead,
+                  userInfo,
                 } = doc.data();
                 list.push({
                   key: doc.id,
@@ -103,6 +57,8 @@ const NotificationScreen = (props) => {
                   Status: Status,
                   startDate: startDate,
                   Suggestion: Suggestion,
+                  isRead: isRead,
+                  userInfo: userInfo,
                   sort: timestamp,
                 });
               });
@@ -116,6 +72,109 @@ const NotificationScreen = (props) => {
       fetchNotifications();
     }, [])
   );
+  const fetchNotifications = async () => {
+    try {
+      const list = [];
+      await firebase
+        .firestore()
+        .collection("Notifications")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const {
+              Title,
+              Cell,
+              timestamp,
+              userId,
+              Goals,
+              Plan,
+              extraInfo,
+              Time,
+              Status,
+              startDate,
+              Suggestion,
+              isRead,
+              userInfo,
+            } = doc.data();
+            list.push({
+              key: doc.id,
+              Title: Title,
+              Cell: Cell,
+              timestamp: timestamp.toDate().toDateString(),
+              userId: userId,
+              Goals: Goals,
+              Plan: Plan,
+              extraInfo: extraInfo,
+              Time: Time,
+              Status: Status,
+              startDate: startDate,
+              Suggestion: Suggestion,
+              isRead: isRead,
+              userInfo: userInfo,
+              sort: timestamp,
+            });
+          });
+        });
+      setNotificationList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const readUpdateHandler = async (key, boolean) => {
+    await readUpdate(key, boolean);
+    fetchNotifications();
+  };
+
+  const acceptHandler = async (
+    key,
+    state,
+    boolean,
+    userInfo,
+    type,
+    header,
+    subHeader
+  ) => {
+    await accept(key, state, boolean);
+    await triggerNotificationHandler(userInfo, type, state, header, subHeader);
+    fetchNotifications();
+  };
+
+  const triggerNotificationHandler = (
+    userInfo,
+    type,
+    state,
+    header,
+    subHeader
+  ) => {
+    console.log("token?", userInfo.expoPushToken);
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: userInfo.expoPushToken,
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${header}`,
+        body: `${subHeader}`,
+      }),
+    });
+    notificationReceipt(
+      `${header}`,
+      `${subHeader}`,
+      userInfo.expoPushToken,
+      userInfo.FirstName,
+      userInfo.LastName
+    );
+    Alert.alert("Notification Enviado!", "");
+    // setNotify(false);
+    // setNotifyTitle("");
+    // setNotifySubtitle("");
+  };
 
   return (
     <FlatList
@@ -143,7 +202,68 @@ const NotificationScreen = (props) => {
           );
         }
         return (
-          <View style={styles.container}>
+          <TouchableOpacity
+            style={[
+              styles.container,
+              { backgroundColor: !Notification.isRead ? "silver" : "white" },
+            ]}
+            onPress={() => {
+              Alert.alert("Eligir Accion", "", [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel",
+                },
+                !Notification.isRead
+                  ? {
+                      text: "Marcar como leido",
+                      //  "Marcar como no leido",
+                      onPress: () => readUpdateHandler(Notification.key, true),
+                    }
+                  : {
+                      text: "Marcar como no leido",
+                      //  "Marcar como no leido",
+                      onPress: () => readUpdateHandler(Notification.key, false),
+                    },
+
+                Notification.Status === "Pendiente"
+                  ? {
+                      text: "Cambiar a Aceptado",
+                      onPress: () =>
+                        acceptHandler(
+                          Notification.key,
+                          "Aceptado",
+                          true,
+                          Notification.userInfo,
+                          Notification.Title,
+                          "Tu solicitud a sido aprobada!",
+                          "El estado de tu solicitud ha cambiado a aprobada"
+                        ),
+                    }
+                  : {
+                      text: "Cambiar a Pendiente",
+                      onPress: () =>
+                        acceptHandler(
+                          Notification.key,
+                          "Pendiente",
+                          true,
+                          Notification.userInfo,
+                          Notification.Title,
+                          "Novedades por tu solicitud",
+                          "El estado de tu solicitud cambio a pendiente, verifica que todo este correcto"
+                        ),
+                    },
+              ]);
+            }}
+          >
+            <Image
+              source={{
+                uri: Notification.userInfo
+                  ? Notification.userInfo.userImg
+                  : null,
+              }}
+              style={styles.avatar}
+            />
             <View style={styles.content}>
               <View style={mainContentStyle}>
                 <View style={styles.text}>
@@ -196,6 +316,15 @@ const NotificationScreen = (props) => {
                       </Text>
                     </Text>
                   ) : null}
+                  {Notification.userInfo ? (
+                    <Text style={styles.category}>
+                      De:{" "}
+                      <Text style={styles.answer}>
+                        {Notification.userInfo.FirstName}{" "}
+                        {Notification.userInfo.LastName}
+                      </Text>
+                    </Text>
+                  ) : null}
 
                   {Notification.Time ? (
                     <Text style={styles.category}>
@@ -234,7 +363,7 @@ const NotificationScreen = (props) => {
               </View>
               {attachment}
             </View>
-          </View>
+          </TouchableOpacity>
         );
       }}
     />
