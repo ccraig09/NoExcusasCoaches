@@ -67,7 +67,7 @@ const ClientResultScreen = ({ route, navigation }) => {
   const timeHandler = () => {
     setTimeout(() => {
       alertDialog();
-    }, 7000);
+    }, 3000);
   };
 
   useEffect(() => {

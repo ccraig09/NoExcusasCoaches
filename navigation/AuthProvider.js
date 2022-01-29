@@ -547,15 +547,19 @@ export const AuthProvider = ({ children }) => {
           }
         },
         uploadPromo: async (promoData, userImg, type) => {
+          console.log(promoData);
           try {
             await dbPromo.doc().set(
               {
                 Caption: promoData.Title,
                 Subtitle: promoData.Subtitle,
-                Extension: promoData.Extension,
+                Extension: promoData.Extension ? promoData.Extension : null,
+                Points: promoData.Points ? promoData.Points : null,
                 Usuario: user.uid,
                 Type: type,
-                Description: promoData.Description,
+                Description: promoData.Description
+                  ? promoData.Description
+                  : null,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 
                 userImg,
@@ -715,12 +719,10 @@ export const AuthProvider = ({ children }) => {
         },
         accept: async (key, state, boolean) => {
           try {
-            // console.log("uploading expo token", expoPushToken);
-
             await dbNotifications.doc(key).set(
               {
                 Status: state,
-                isRead: boolean,
+                isRead: true,
                 readDate: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }

@@ -299,7 +299,7 @@ const NotificationScreen = (props) => {
                             acceptHandler(
                               Notification.key,
                               "Aceptado",
-                              true,
+                              false,
                               Notification.userInfo,
                               Notification.Title,
                               "Aprobado ☑️",
@@ -312,7 +312,7 @@ const NotificationScreen = (props) => {
                             acceptHandler(
                               Notification.key,
                               "Pendiente",
-                              true,
+                              false,
                               Notification.userInfo,
                               Notification.Title,
                               "Ups!",

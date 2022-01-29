@@ -48,7 +48,8 @@ const InformationScreen = ({ navigation }) => {
   const [transferred, setTransferred] = useState(0);
   const [userInfo, setUserInfo] = useState([]);
   const [promolist, setPromoList] = useState([]);
-  const [premiolist, setPremioList] = useState([]);
+  const [premio3erlist, setPremio3erList] = useState([]);
+  const [premioNoExlist, setPremioNoExList] = useState([]);
   const [contactlist, setContactList] = useState([]);
   const [promoData, setPromoData] = useState([]);
   const [notifyTitle, setNotifyTitle] = useState("");
@@ -77,6 +78,7 @@ const InformationScreen = ({ navigation }) => {
         setPromoData({});
         try {
           const list = [];
+          let sorted;
           await firebase
             .firestore()
             .collection("Promos")
@@ -89,6 +91,7 @@ const InformationScreen = ({ navigation }) => {
                   Usuario,
                   userImg,
                   Extension,
+                  Points,
                   Type,
                   Description,
                 } = doc.data();
@@ -97,15 +100,18 @@ const InformationScreen = ({ navigation }) => {
                   Caption: Caption,
                   Subtitle: Subtitle,
                   Extension: Extension,
+                  Points: Points,
                   Description: Description,
                   Usuario: Usuario,
                   Type: Type,
                   userImg: userImg,
                 });
+                sorted = list.sort((a, b) => (a[Points] < b[Points] ? 1 : -1));
               });
             });
           setPromoList(list.filter((data) => data.Type == "Promocion"));
-          setPremioList(list.filter((data) => data.Type == "Premio"));
+          setPremio3erList(sorted.filter((data) => data.Type == "Premio3er"));
+          setPremioNoExList(sorted.filter((data) => data.Type == "PremioNoEx"));
           setContactList(list.filter((data) => data.Type == "Contact"));
         } catch (e) {
           console.log(e);
@@ -173,6 +179,7 @@ const InformationScreen = ({ navigation }) => {
     setImage(null);
     setPromoData({});
     try {
+      let sorted;
       const list = [];
       await firebase
         .firestore()
@@ -184,6 +191,7 @@ const InformationScreen = ({ navigation }) => {
               Caption,
               Subtitle,
               Extension,
+              Points,
               Usuario,
               userImg,
               Type,
@@ -194,15 +202,18 @@ const InformationScreen = ({ navigation }) => {
               Caption: Caption,
               Subtitle: Subtitle,
               Extension: Extension,
+              Points: Points,
               Description: Description,
               Usuario: Usuario,
               Type: Type,
               userImg: userImg,
             });
+            sorted = list.sort((a, b) => (a[Points] > b[Points] ? 1 : -1));
           });
         });
       setPromoList(list.filter((data) => data.Type == "Promocion"));
-      setPremioList(list.filter((data) => data.Type == "Premio"));
+      setPremio3erList(sorted.filter((data) => data.Type == "Premio3er"));
+      setPremioNoExList(sorted.filter((data) => data.Type == "PremioNoEx"));
       setContactList(list.filter((data) => data.Type == "Contact"));
     } catch (e) {
       console.log(e);
@@ -418,7 +429,7 @@ const InformationScreen = ({ navigation }) => {
     const storageRef = firebase
       .storage()
       .ref()
-      .child("PromoImages/" + `${promoData.Title}/` + "PromoImage");
+      .child("PromoImages/" + `${promoData.Subtitle}/` + "PromoImage");
 
     const task = storageRef.put(blob);
 
@@ -506,10 +517,18 @@ const InformationScreen = ({ navigation }) => {
                     },
                   },
                   {
-                    text: "Premio",
+                    text: "Premio Tercera",
                     style: "default",
                     onPress: () => {
-                      setType("Premio");
+                      setType("Premio3er");
+                      actionSheetRef.current?.setModalVisible();
+                    },
+                  },
+                  {
+                    text: "Premio por gym",
+                    style: "default",
+                    onPress: () => {
+                      setType("PremioNoEx");
                       actionSheetRef.current?.setModalVisible();
                     },
                   },
@@ -652,6 +671,24 @@ const InformationScreen = ({ navigation }) => {
                 />
               </View>
               <View style={styles.action}>
+                {type === "Premio3er" ||
+                  ("PremioNoEx" && (
+                    <Input
+                      label="Puntos"
+                      leftIcon={{ type: "font-awesome", name: "edit" }}
+                      placeholder="Puntos"
+                      placeholderTextColor="#666666"
+                      keyboardType="numeric"
+                      style={styles.textInput}
+                      value={promoData.Points ? promoData.Points : ""}
+                      onChangeText={(text) =>
+                        setPromoData({ ...promoData, Points: text })
+                      }
+                      autoCorrect={false}
+                    />
+                  ))}
+              </View>
+              <View style={styles.action}>
                 <Input
                   label="Descripcion"
                   leftIcon={{ type: "font-awesome", name: "edit" }}
@@ -724,7 +761,7 @@ const InformationScreen = ({ navigation }) => {
                 });
               }}
               onLongPress={() => {
-                deletePromoHandler(itemData.item.key, itemData.item.Caption);
+                deletePromoHandler(itemData.item.key, itemData.item.Subtitle);
               }}
             />
           )}
@@ -734,7 +771,7 @@ const InformationScreen = ({ navigation }) => {
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={premiolist}
+          data={premio3erlist}
           renderItem={(itemData) => (
             <PromoItem
               image={itemData.item.userImg}
@@ -757,7 +794,7 @@ const InformationScreen = ({ navigation }) => {
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={premiolist}
+          data={premioNoExlist}
           renderItem={(itemData) => (
             <PromoItem
               image={itemData.item.userImg}
