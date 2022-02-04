@@ -21,6 +21,7 @@ const NotificationScreen = (props) => {
 
   const [notificationList, setNotificationList] = useState([]);
   const [historyList, setHistoryList] = useState([]);
+  const [cuponesNotificationList, setCuponesNotificationList] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -33,7 +34,16 @@ const NotificationScreen = (props) => {
             .get()
             .then((querySnapshot) => {
               querySnapshot.forEach((doc) => {
-                const { title, subtitle, timestamp, userId } = doc.data();
+                const {
+                  title,
+                  subtitle,
+                  timestamp,
+                  userId,
+                  fName,
+                  lName,
+                  points,
+                  Type,
+                } = doc.data();
                 list.push({
                   key: doc.id,
                   Title: title,
@@ -41,11 +51,24 @@ const NotificationScreen = (props) => {
                   timestamp: timestamp.toDate().toDateString(),
                   userId: userId,
                   isRead: true,
+                  fName: fName,
+                  lName: lName,
+                  points: points,
                   sort: timestamp,
+                  Type: Type,
                 });
               });
             });
-          setHistoryList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
+          setCuponesNotificationList(
+            list
+              .sort((a, b) => (a.sort < b.sort ? 1 : -1))
+              .filter((data) => data.Type == "Cupones")
+          );
+          setHistoryList(
+            list
+              .sort((a, b) => (a.sort < b.sort ? 1 : -1))
+              .filter((data) => data.Type !== "Cupones")
+          );
         } catch (e) {
           console.log(e);
         }
@@ -70,6 +93,7 @@ const NotificationScreen = (props) => {
                   Time,
                   Status,
                   startDate,
+
                   Suggestion,
                   isRead,
                   userInfo,
@@ -84,6 +108,7 @@ const NotificationScreen = (props) => {
                   Plan: Plan,
                   extraInfo: extraInfo,
                   Time: Time,
+
                   Status: Status,
                   startDate: startDate,
                   Suggestion: Suggestion,
@@ -93,6 +118,7 @@ const NotificationScreen = (props) => {
                 });
               });
             });
+
           setNotificationList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
         } catch (e) {
           console.log(e);
@@ -121,6 +147,7 @@ const NotificationScreen = (props) => {
               Plan,
               extraInfo,
               Time,
+              Type,
               Status,
               startDate,
               Suggestion,
@@ -137,6 +164,7 @@ const NotificationScreen = (props) => {
               Plan: Plan,
               extraInfo: extraInfo,
               Time: Time,
+              Type: Type,
               Status: Status,
               startDate: startDate,
               Suggestion: Suggestion,
@@ -146,6 +174,7 @@ const NotificationScreen = (props) => {
             });
           });
         });
+
       setNotificationList(list.sort((a, b) => (a.sort < b.sort ? 1 : -1)));
     } catch (e) {
       console.log(e);
@@ -221,7 +250,7 @@ const NotificationScreen = (props) => {
   return (
     <View>
       <ButtonGroup
-        buttons={["CLIENTES", "HISTORIA"]}
+        buttons={["CLIENTES", "HISTORIA", "PREMIOS"]}
         selectedIndex={selectedIndex}
         onPress={(value) => {
           console.log(value);
@@ -232,7 +261,13 @@ const NotificationScreen = (props) => {
       />
       <FlatList
         style={styles.root}
-        data={selectedIndex === 0 ? notificationList : historyList}
+        data={
+          selectedIndex === 0
+            ? notificationList
+            : selectedIndex === 1
+            ? historyList
+            : cuponesNotificationList
+        }
         // extraData={this.state}
         ItemSeparatorComponent={() => {
           return <View style={styles.separator} />;
@@ -395,6 +430,21 @@ const NotificationScreen = (props) => {
                           {Notification.userInfo.FirstName}{" "}
                           {Notification.userInfo.LastName}
                         </Text>
+                      </Text>
+                    ) : null}
+                    {Notification.fName && Notification.lName ? (
+                      <Text style={styles.category}>
+                        De:{" "}
+                        <Text style={styles.answer}>
+                          {Notification.fName} {Notification.lName}
+                        </Text>
+                      </Text>
+                    ) : null}
+
+                    {Notification.points ? (
+                      <Text style={styles.category}>
+                        Puntos:{" "}
+                        <Text style={styles.answer}>{Notification.points}</Text>
                       </Text>
                     ) : null}
 

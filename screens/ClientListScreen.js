@@ -391,11 +391,7 @@ const ClientListScreen = ({ navigation }) => {
               }}
             />
           </View> */}
-          <View style={{ alignItems: "flex-end" }}>
-            <TouchableOpacity onPress={() => {}}>
-              <NotificationButton />
-            </TouchableOpacity>
-          </View>
+          <View style={{ alignItems: "flex-end" }}></View>
           <View style={{ alignItems: "flex-end" }}>
             <TouchableOpacity onPress={() => navigation.navigate("Edit")}>
               <Icon name="settings" size={24} color="black" />
