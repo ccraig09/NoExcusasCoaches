@@ -679,22 +679,36 @@ const InformationScreen = ({ navigation }) => {
                 />
               </View>
               <View style={styles.action}>
-                {type === "Premio3er" ||
-                  ("PremioNoEx" && (
-                    <Input
-                      label="Puntos"
-                      leftIcon={{ type: "font-awesome", name: "edit" }}
-                      placeholder="Puntos"
-                      placeholderTextColor="#666666"
-                      keyboardType="numeric"
-                      style={styles.textInput}
-                      value={promoData.Points ? promoData.Points : ""}
-                      onChangeText={(text) =>
-                        setPromoData({ ...promoData, Points: text })
-                      }
-                      autoCorrect={false}
-                    />
-                  ))}
+                {type === "PremioNoEx" && (
+                  <Input
+                    label="Puntos"
+                    leftIcon={{ type: "font-awesome", name: "edit" }}
+                    placeholder="Puntos"
+                    placeholderTextColor="#666666"
+                    keyboardType="numeric"
+                    style={styles.textInput}
+                    value={promoData.Points ? promoData.Points : ""}
+                    onChangeText={(text) =>
+                      setPromoData({ ...promoData, Points: text })
+                    }
+                    autoCorrect={false}
+                  />
+                )}
+                {type === "Premio3er" && (
+                  <Input
+                    label="Puntos"
+                    leftIcon={{ type: "font-awesome", name: "edit" }}
+                    placeholder="Puntos"
+                    placeholderTextColor="#666666"
+                    keyboardType="numeric"
+                    style={styles.textInput}
+                    value={promoData.Points ? promoData.Points : ""}
+                    onChangeText={(text) =>
+                      setPromoData({ ...promoData, Points: text })
+                    }
+                    autoCorrect={false}
+                  />
+                )}
               </View>
               <View style={styles.action}>
                 <Input
