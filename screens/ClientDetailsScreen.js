@@ -22,7 +22,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import firebase from "../components/firebase";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
-  const { notificationReceipt } = useContext(AuthContext);
+  const { userNotificationReceipt } = useContext(AuthContext);
 
   const { id, data } = route.params;
   const [notify, setNotify] = useState(false);
@@ -107,12 +107,13 @@ const ClientDetailsScreen = ({ route, navigation }) => {
         body: `${notifySubtitle}`,
       }),
     });
-    notificationReceipt(
+    userNotificationReceipt(
       notifyTitle,
       notifySubtitle,
       selectedClient.expoPushToken,
       selectedClient.FirstName,
-      selectedClient.LastName
+      selectedClient.LastName,
+      selectedClient
     );
     Alert.alert("Notification Enviado!", "");
     setNotify(false);

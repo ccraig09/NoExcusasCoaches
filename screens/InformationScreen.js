@@ -220,8 +220,16 @@ const InformationScreen = ({ navigation }) => {
           });
         });
       setPromoList(list.filter((data) => data.Type == "Promocion"));
-      setPremio3erList(sorted.filter((data) => data.Type == "Premio3er"));
-      setPremioNoExList(sorted.filter((data) => data.Type == "PremioNoEx"));
+      setPremio3erList(
+        sorted
+          .filter((data) => data.Type == "Premio3er")
+          .sort((a, b) => (a.Points > b.Points ? 1 : -1))
+      );
+      setPremioNoExList(
+        sorted
+          .filter((data) => data.Type == "PremioNoEx")
+          .sort((a, b) => (a.Points > b.Points ? 1 : -1))
+      );
       setContactList(list.filter((data) => data.Type == "Contact"));
     } catch (e) {
       console.log(e);

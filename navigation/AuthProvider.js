@@ -470,6 +470,52 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
+
+        userNotificationReceipt: async (
+          title,
+          subtitle,
+          token,
+          fName,
+          lName,
+          userInfo
+        ) => {
+          try {
+            await dbN.doc().set(
+              {
+                userId: user.uid,
+                title,
+                subtitle,
+                token,
+                fName,
+                lName,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+            await db
+              .doc(userInfo.userId)
+              .collection("User Notifications")
+              .doc()
+              .set(
+                {
+                  userId: user.uid,
+                  title,
+                  subtitle,
+                  token,
+                  fName,
+                  lName,
+                  isRead: false,
+                  Type: "Personal",
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                },
+                { merge: true }
+              );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         notificationReceipt: async (
           title,
           subtitle,
