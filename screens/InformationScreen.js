@@ -239,7 +239,7 @@ const InformationScreen = ({ navigation }) => {
   const triggerNotificationHandler = async () => {
     await storeNotification(
       "Nueva Promocion!",
-      "Tenemos una nueva promocion! Abrir la app para ver los detallas"
+      "Tenemos una nueva promocion! Abrir la app para ver los detalles"
     );
     const clients = clientList.map((code) => code.expoPushToken);
     console.log("Clients list", clients);

@@ -66,7 +66,8 @@ const ClientResultScreen = ({ route, navigation }) => {
   };
   const timeHandler = () => {
     setTimeout(() => {
-      alertDialog();
+      // alertDialog();
+      navigation.goBack();
     }, 3000);
   };
 
