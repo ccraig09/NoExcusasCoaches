@@ -30,26 +30,37 @@ const ClientAvatar = (props) => {
   return (
     <View>
       {!isNaN(dateDiff) && (
-        <Text style={{ color: "grey", fontWeight: "bold" }}>
+        <Text style={{ fontSize: 12, color: "grey", fontWeight: "bold" }}>
           Plan hasta {props.endDate}
         </Text>
       )}
       <View style={{ flexDirection: "row" }}>
         {!isNaN(dateDiff) && (
-          <Text style={{ color: "grey", fontWeight: "bold" }}>
+          <Text style={{ fontSize: 12, color: "grey", fontWeight: "bold" }}>
             {dateDiff < 0 ? "Hace " : "En "}
           </Text>
         )}
         <Text
           style={{
-            color: isNaN(dateDiff) ? "orange" : dateDiff < 3 ? "red" : "green",
+            color: isNaN(dateDiff)
+              ? "orange"
+              : dateDiff < 0
+              ? "red"
+              : dateDiff < 3
+              ? "#E0B90A"
+              : "green",
+
             fontWeight: "bold",
+            fontSize: 12,
           }}
         >
           {isNaN(dateDiff) ? "Actualizar plan" : Math.abs(dateDiff)}
         </Text>
         {!isNaN(dateDiff) && (
-          <Text style={{ color: "grey", fontWeight: "bold" }}> Dias</Text>
+          <Text style={{ fontSize: 12, color: "grey", fontWeight: "bold" }}>
+            {" "}
+            Dias
+          </Text>
         )}
       </View>
     </View>
@@ -105,7 +116,7 @@ const styles = StyleSheet.create({
     width: 190,
   },
   caption: {
-    fontSize: 20,
+    fontSize: 15,
     color: "white",
     // fontFamily: "open-sans-bold",
     fontWeight: "600",

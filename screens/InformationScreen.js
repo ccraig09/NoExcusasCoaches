@@ -301,22 +301,31 @@ const InformationScreen = ({ navigation }) => {
 
   const clientNotification = () => {
     const clients = clientList.map((code) => code.expoPushToken);
-    console.log("Clients list", clients);
-    const m = Math.floor(clients.length / 2);
-    const [leftSide, rightSide] = [
-      clients.slice(0, m),
-      clients.slice(m, clients.length),
-    ];
-    // Notifications.scheduleNotificationAsync({
-    //   content: {
-    //     title: "My first local notification",
-    //     body: "this is the first local notification we are sending!",
-    //     data: userInfo,
-    //   },
-    //   trigger: {
-    //     seconds: 6,
-    //   },
-    // });
+    function splitArrayIntoChunksOfLen(arr, len) {
+      var chunks = [],
+        i = 0,
+        n = arr.length;
+      while (i < n) {
+        chunks.push(arr.slice(i, (i += len)));
+      }
+      return chunks;
+    }
+    var splitClients = splitArrayIntoChunksOfLen(clients, clients.length / 4);
+
+    console.log(splitClients[3].length);
+    // console.log("Clients list", clients);
+    // const m = Math.floor(clients.length / 3);
+    // const n = Math.floor(clients.length / 3);
+    // const [leftSide, middleSide, rightSide] = [
+    //   clients.slice(0, m),
+    //   clients.slice(leftSide, n),
+    //   clients.slice(middleSide, clients.length),
+    // ];
+
+    // console.log(leftSide);
+    // console.log(middleSide);
+    // console.log(rightSide.length);
+
     fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: {
@@ -325,7 +334,7 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: leftSide,
+        to: splitClients[0],
         sound: "default",
         // data: { extraData: scannedUser },
         title: `${notifyTitle}`,
@@ -340,7 +349,39 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: rightSide,
+        to: splitClients[1],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[2],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[3],
         sound: "default",
         // data: { extraData: scannedUser },
         title: `${notifyTitle}`,
@@ -555,6 +596,12 @@ const InformationScreen = ({ navigation }) => {
                 ]);
               }}
             />
+            {/* <Button
+              title="test"
+              onPress={() => {
+                clientNotification();
+              }}
+            /> */}
             <Button
               title="Enviar Notificacion"
               onPress={() => {

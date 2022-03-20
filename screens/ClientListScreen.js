@@ -7,7 +7,10 @@ import {
   StatusBar,
   FlatList,
   SafeAreaView,
+  Animated,
+  RefreshControl,
   Dimensions,
+  Alert,
   TouchableOpacity,
 } from "react-native";
 // import dayjs from "dayjs";
@@ -17,6 +20,9 @@ import ClientAvatar from "../components/ClientAvatar";
 import { AuthContext } from "../navigation/AuthProvider";
 import firebase from "../components/firebase";
 import * as dayjs from "dayjs";
+import { Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
+import IconMat from "react-native-vector-icons/MaterialCommunityIcons";
+import { SwipeListView } from "react-native-swipe-list-view";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "../constants/Colors";
@@ -44,6 +50,7 @@ const greetingMessage =
 
 const ClientListScreen = ({ navigation }) => {
   const [clientList, setClientList] = useState([]);
+  const [unactiveList, setUnactiveList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
   const [Level1, setLevel1] = useState([]);
@@ -70,23 +77,31 @@ const ClientListScreen = ({ navigation }) => {
   const keyExtractor = (item, index) => index.toString();
 
   const renderItem = ({ item }) => (
-    // dayjs.extend(relativeTime)
-
-    // <View
-    //   style={{
-    //     minHeight: 70,
-    //     padding: 5,
-    //     flexDirection: "row",
-    //     alignItems: "center",
-    //   }}
-    // >
     <TouchableOpacity
       style={{
-        minHeight: 70,
+        flex: 1,
+        width: "100%",
+        // minHeight: 70,
         padding: 5,
+        // paddingVertical: 15,
+        // paddingHorizontal: 10,
+
         flexDirection: "row",
         alignItems: "center",
+        backgroundColor: "white",
+        borderRadius: 10,
+        margin: 5,
+        borderColor: Colors.noExprimary,
+        shadowColor: Colors.noExprimary,
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 9,
       }}
+      underlayColor={"white"}
       onPress={() =>
         navigation.navigate("Client", {
           id: item.userId,
@@ -96,11 +111,7 @@ const ClientListScreen = ({ navigation }) => {
     >
       <Avatar
         rounded
-        size={80}
-        // {!userInfo.userImg ? (
-        //   icon={{ name: "user", type: "font-awesome" }}
-        // }
-        // style={{ padding: 0 }}
+        size={40}
         source={{ uri: `${item.userImg}` }}
         onPress={() =>
           navigation.navigate("Client", {
@@ -110,10 +121,10 @@ const ClientListScreen = ({ navigation }) => {
         }
       ></Avatar>
       <View style={{ marginLeft: 5 }}>
-        <Text style={{ fontWeight: "bold", fontSize: 26 }}>
+        <Text style={{ fontWeight: "bold", fontSize: 15 }}>
           {item.FirstName}
         </Text>
-        <Text style={{ fontWeight: "bold", fontSize: 26 }}>
+        <Text style={{ fontWeight: "bold", fontSize: 13 }}>
           {item.LastName}
         </Text>
 
@@ -122,27 +133,99 @@ const ClientListScreen = ({ navigation }) => {
           endDate={item.endDate}
           userId={item.userId}
         />
-        {/* <Text style={{ color: "grey", fontWeight: "bold" }}>{a}"dias"</Text> */}
-        {/* <Text>
-          {dateDiff > 900000 || dateDiff < 0 ? (
-            <Text style={[styles.dateNumber, { color: "red" }]}>
-              {" "}
-              (0 dias){" "}
-            </Text>
-          ) : (
-            <Text style={[styles.dateNumber, { color: "#666" }]}>
-              {" "}
-              ({dateDiff} dias){" "}
-            </Text>
-          )}
-          <View style={{ marginBottom: 2 }}>
-            {dateDiff < 5 && <Octicons name="alert" size={15} color="red" />}
-          </View>
-        </Text> */}
       </View>
     </TouchableOpacity>
-    // </View>
   );
+  const closeRow = (rowMap, rowKey) => {
+    if (rowMap[rowKey]) {
+      rowMap[rowKey].closeRow();
+    }
+  };
+
+  const deleteRow = async (rowMap, rowKey, Title) => {
+    console.log("this is previndex", rowKey);
+    const newData = [...clientList];
+    const prevIndex = clientList.findIndex((item) => item.key === rowKey);
+
+    // loadDetails()
+
+    // loadDetails()
+    Alert.alert("Desactivar?", `Quisieras desactivar "${Title}"?`, [
+      {
+        text: "No",
+        style: "cancel",
+      },
+      {
+        text: "Si",
+        onPress: async () => (
+          console.log("desactivando"),
+          deleteProduct(rowKey),
+          console.log("desactivated"),
+          closeRow(rowMap, rowKey),
+          newData.splice(prevIndex, 1)
+          // setInventory(newData),
+          // loadDetails()
+        ),
+      },
+    ]);
+  };
+
+  const HiddenItemWithActions = (props) => {
+    const { swipeAnimatedValue, onClose, onDelete } = props;
+
+    return (
+      <View style={styles.rowBack}>
+        {/* <Text>Left</Text> */}
+        <TouchableOpacity
+          style={[styles.backRightBtn, styles.backRightBtnLeft]}
+          onPress={onClose}
+        >
+          <IconMat
+            name="close-circle-outline"
+            size={25}
+            style={styles.trash}
+            color="#fff"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.backRightBtn, styles.backRightBtnRight]}
+          onPress={onDelete}
+        >
+          <Animated.View
+            style={[
+              styles.trash,
+              {
+                transform: [
+                  {
+                    scale: swipeAnimatedValue.interpolate({
+                      inputRange: [-90, -45],
+                      outputRange: [1, 0],
+                      extrapolate: "clamp",
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <IconMat name="arrow-right-circle-outline" size={25} color="#fff" />
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderHiddenItem = (itemData, rowMap) => {
+    return (
+      <HiddenItemWithActions
+        data={clientList}
+        rowMap={rowMap}
+        onClose={() => closeRow(rowMap, itemData.item.key)}
+        onDelete={() =>
+          deleteRow(rowMap, itemData.item.key, itemData.item.FirstName)
+        }
+      />
+    );
+  };
 
   const searchClients = (value) => {
     const filteredClients = inMemoryClientes.filter((client) => {
@@ -161,7 +244,6 @@ const ClientListScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // console.log("loading home and user", user);
       const fetchCoaches = async () => {
         try {
           const list = [];
@@ -400,31 +482,82 @@ const ClientListScreen = ({ navigation }) => {
           {/* </View> */}
         </View>
       </View>
-      <TextInput
-        placeholder="Buscar Cliente"
-        placeholderTextColor="#dddddd"
-        style={{
-          // marginTop: 20,
-          // height: 50,
-          fontSize: 36,
-          padding: 10,
-          borderBottomWidth: 0.5,
-          borderBottomColor: "#7d90a0",
-        }}
-        onChangeText={(value) => searchClients(value)}
-      />
 
-      <View style={styles.TitleBar}></View>
-      <Subtitle>
-        {"Clientes".toUpperCase()} ( {clientList.length} )
-      </Subtitle>
-      <Text></Text>
-      <FlatList
-        showsHorizontalScrollIndicator={false}
-        data={clientList}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-      />
+      {/* <View style={styles.TitleBar}></View> */}
+      <View style={{ flexDirection: "row", flex: 1 }}>
+        <View>
+          <TextInput
+            placeholder="🔎 Activos"
+            placeholderTextColor="#dddddd"
+            style={{
+              width: "80%",
+              // marginTop: 20,
+              // height: 50,
+              fontSize: 26,
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderBottomColor: "#7d90a0",
+            }}
+            onChangeText={(value) => searchClients(value)}
+          />
+
+          <Subtitle>
+            {"Activos".toUpperCase()} ( {clientList.length} )
+          </Subtitle>
+
+          <SwipeListView
+            refreshControl={
+              <RefreshControl
+                colors={["#FF4949", "#FF4949"]}
+                // refreshing={isRefreshing}
+                // onRefresh={loadDetails}
+              />
+            }
+            // useFlatList={true}
+            data={clientList}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            renderHiddenItem={renderHiddenItem}
+            leftOpenValue={75}
+            rightOpenValue={-150}
+            disableRightSwipe
+            onRowOpen={(rowKey, rowMap) => {
+              setTimeout(() => {
+                rowMap[rowKey] && rowMap[rowKey].closeRow();
+              }, 2000);
+            }}
+            // previewRowKey={inventory[0].key}
+
+            // onRowDidOpen={onRowDidOpen}
+          />
+        </View>
+        <View>
+          <TextInput
+            placeholder="🔎 Desactivos"
+            placeholderTextColor="#dddddd"
+            style={{
+              width: "80%",
+              // marginTop: 20,
+              // height: 50,
+              fontSize: 26,
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderBottomColor: "#7d90a0",
+            }}
+            onChangeText={(value) => searchClients(value)}
+          />
+
+          <Subtitle>
+            {"Desactivos".toUpperCase()} ( {clientList.length} )
+          </Subtitle>
+          <FlatList
+            showsHorizontalScrollIndicator={false}
+            data={clientList}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -432,7 +565,7 @@ const ClientListScreen = ({ navigation }) => {
 const Subtitle = styled.Text`
   color: #b8bece;
   font-weight: 800;
-  font-size: 25px;
+  font-size: 17px;
   margin-left: 20px;
   margin-top: 20px;
   text-transform: uppercase;
@@ -472,6 +605,43 @@ const styles = StyleSheet.create({
   subtitle: {
     fontWeight: "bold",
     fontSize: 16,
+  },
+  rowBack: {
+    alignItems: "center",
+    // backgroundColor: "#DDD",
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingLeft: 15,
+    margin: 5,
+    marginBottom: 15,
+    marginTop: 15,
+    borderRadius: 15,
+  },
+  backRightBtn: {
+    alignItems: "flex-end",
+    bottom: 0,
+    justifyContent: "center",
+    position: "absolute",
+    top: 0,
+    width: 75,
+    height: 50,
+    paddingRight: 17,
+  },
+  backRightBtnLeft: {
+    backgroundColor: "#1f65ff",
+    right: 75,
+  },
+  backRightBtnRight: {
+    backgroundColor: "red",
+    right: 0,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  trash: {
+    height: 25,
+    width: 25,
+    marginRight: 7,
   },
 });
 export default ClientListScreen;
