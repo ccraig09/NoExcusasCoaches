@@ -763,6 +763,24 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
+        inactivar: async (key, boolean) => {
+          try {
+            // console.log("uploading expo token", expoPushToken);
+
+            await db.doc(key).set(
+              {
+                active: boolean,
+
+                inactivateDate: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         accept: async (key, state, boolean) => {
           try {
             await dbNotifications.doc(key).set(

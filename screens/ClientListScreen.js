@@ -23,6 +23,7 @@ import * as dayjs from "dayjs";
 import { Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import IconMat from "react-native-vector-icons/MaterialCommunityIcons";
 import { SwipeListView } from "react-native-swipe-list-view";
+import Toast from "react-native-tiny-toast";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "../constants/Colors";
@@ -50,7 +51,7 @@ const greetingMessage =
 
 const ClientListScreen = ({ navigation }) => {
   const [clientList, setClientList] = useState([]);
-  const [unactiveList, setUnactiveList] = useState([]);
+  const [inactiveList, setInactiveList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
   const [Level1, setLevel1] = useState([]);
@@ -69,7 +70,7 @@ const ClientListScreen = ({ navigation }) => {
   // const minDays = () => {
   //   if (dateDiff > 5) dateDiff = 0;
   // };
-  const { user, deleteProduct } = useContext(AuthContext);
+  const { user, inactivar } = useContext(AuthContext);
   //   const db = firebase.firestore().collection("Members");
 
   const width = Dimensions.get("window").width;
@@ -142,32 +143,59 @@ const ClientListScreen = ({ navigation }) => {
     }
   };
 
-  const deleteRow = async (rowMap, rowKey, Title) => {
+  const reactivateHandler = async (Title, rowKey, rowMap) => {
+    const toast = Toast.showLoading("Reactivando");
+
+    console.log("reactivando", Title),
+      await inactivar(rowKey, true),
+      closeRow(rowMap, rowKey),
+      // newData.splice(prevIndex, 1),
+      // inactiveList(newData),
+      fetchMembers();
+    Toast.hide(toast);
+  };
+  const inactivateHandler = async (Title, rowKey, rowMap) => {
+    const toast = await Toast.showLoading("Inactivando");
+
+    console.log("desactivando", Title),
+      await inactivar(rowKey, false),
+      closeRow(rowMap, rowKey),
+      // newData.splice(prevIndex, 1),
+      // clientList(newData), ¿˘
+      fetchMembers();
+    Toast.hide(toast);
+  };
+
+  const activateHandler = async (rowMap, rowKey, Title, active) => {
     console.log("this is previndex", rowKey);
-    const newData = [...clientList];
-    const prevIndex = clientList.findIndex((item) => item.key === rowKey);
+    // const newData = !active ? [...inactiveList] : [...clientList];
+    // const prevIndex = !active
+    //   ? inactiveList.findIndex((item) => item.key === rowKey)
+    //   : clientList.findIndex((item) => item.key === rowKey);
 
-    // loadDetails()
-
-    // loadDetails()
-    Alert.alert("Desactivar?", `Quisieras desactivar "${Title}"?`, [
-      {
-        text: "No",
-        style: "cancel",
-      },
-      {
-        text: "Si",
-        onPress: async () => (
-          console.log("desactivando"),
-          deleteProduct(rowKey),
-          console.log("desactivated"),
-          closeRow(rowMap, rowKey),
-          newData.splice(prevIndex, 1)
-          // setInventory(newData),
-          // loadDetails()
-        ),
-      },
-    ]);
+    if (active === false) {
+      Alert.alert("Reactivar?", `Quisieras reactivar "${Title}"?`, [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Si",
+          onPress: async () => reactivateHandler(Title, rowKey, rowMap),
+        },
+      ]);
+    } else {
+      Alert.alert("Desactivar?", `Quisieras desactivar "${Title}"?`, [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Si",
+          onPress: async () => inactivateHandler(Title, rowKey, rowMap),
+        },
+      ]);
+    }
   };
 
   const HiddenItemWithActions = (props) => {
@@ -221,7 +249,12 @@ const ClientListScreen = ({ navigation }) => {
         rowMap={rowMap}
         onClose={() => closeRow(rowMap, itemData.item.key)}
         onDelete={() =>
-          deleteRow(rowMap, itemData.item.key, itemData.item.FirstName)
+          activateHandler(
+            rowMap,
+            itemData.item.key,
+            itemData.item.FirstName,
+            itemData.item.active
+          )
         }
       />
     );
@@ -267,6 +300,7 @@ const ClientListScreen = ({ navigation }) => {
                   expoPushToken,
                   goal,
                   history,
+                  active,
                   sport,
                   Age,
                   Height,
@@ -298,6 +332,7 @@ const ClientListScreen = ({ navigation }) => {
                   email: email,
                   Phone: Phone,
                   plan: plan,
+                  active: active,
                   expoPushToken: expoPushToken,
                   points: points,
                   startDate: startDate,
@@ -329,8 +364,16 @@ const ClientListScreen = ({ navigation }) => {
               });
             });
           // setClientList(list);
+
           setClientList(
-            list.sort((a, b) => (a.dateDiff < b.dateDiff ? 1 : -1))
+            list
+              .filter((data) => data.active !== false)
+              .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+          );
+          setInactiveList(
+            list
+              .filter((data) => data.active == false)
+              .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
           );
 
           setInMemoryClientes(list);
@@ -373,6 +416,110 @@ const ClientListScreen = ({ navigation }) => {
       });
     }, [])
   );
+
+  const fetchMembers = async () => {
+    try {
+      const list = [];
+      await firebase
+        .firestore()
+        .collection("Members")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const {
+              FirstName,
+              LastName,
+              userImg,
+              email,
+              Phone,
+              createdAt,
+              plan,
+              points,
+              startDate,
+              endDate,
+              expoPushToken,
+              goal,
+              history,
+              active,
+              sport,
+              Age,
+              Height,
+              Weight,
+              Gender,
+              BaseStartDate,
+              Imc,
+              Grasa,
+              Musculo,
+              Basal,
+              GoalBasal,
+              Agua,
+              Proteina,
+              Osea,
+              Metabolica,
+              Viseral,
+              notes,
+              userId,
+            } = doc.data();
+            var date1 = moment().startOf("day");
+            var date2 = moment(endDate, "DD-MM-YYYY");
+            const dateDiff = moment.duration(date2.diff(date1)).asDays();
+
+            list.push({
+              key: doc.id,
+              FirstName: FirstName,
+              LastName: LastName,
+              userImg: userImg,
+              email: email,
+              Phone: Phone,
+              plan: plan,
+              active: active,
+              expoPushToken: expoPushToken,
+              points: points,
+              startDate: startDate,
+              endDate: endDate,
+              goal: goal,
+              history: history,
+              sport: sport,
+              Age,
+              Height,
+              Weight,
+              Gender,
+              BaseStartDate,
+              Imc,
+              Grasa,
+              Musculo,
+              Basal,
+              GoalBasal,
+              Agua,
+              Proteina,
+              Osea,
+              Metabolica,
+              Viseral,
+              notes: notes,
+              createdAt: createdAt,
+              userId: userId,
+              dateDiff: dateDiff,
+            });
+            // console.log("date diffs", dateDiff);
+          });
+        });
+      // setClientList(list);
+      setClientList(
+        list
+          .filter((data) => data.active !== false)
+          .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+      );
+      setInactiveList(
+        list
+          .filter((data) => data.active == false)
+          .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+      );
+
+      setInMemoryClientes(list);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -484,7 +631,7 @@ const ClientListScreen = ({ navigation }) => {
       </View>
 
       {/* <View style={styles.TitleBar}></View> */}
-      <View style={{ flexDirection: "row", flex: 1 }}>
+      <View style={{ flex: 1, flexDirection: "row" }}>
         <View>
           <TextInput
             placeholder="🔎 Activos"
@@ -526,14 +673,14 @@ const ClientListScreen = ({ navigation }) => {
                 rowMap[rowKey] && rowMap[rowKey].closeRow();
               }, 2000);
             }}
-            // previewRowKey={inventory[0].key}
+            // previewRowKey={clientList[0].key}
 
             // onRowDidOpen={onRowDidOpen}
           />
         </View>
         <View>
           <TextInput
-            placeholder="🔎 Desactivos"
+            placeholder="🔎 Inactivos"
             placeholderTextColor="#dddddd"
             style={{
               width: "80%",
@@ -548,13 +695,32 @@ const ClientListScreen = ({ navigation }) => {
           />
 
           <Subtitle>
-            {"Desactivos".toUpperCase()} ( {clientList.length} )
+            {"Inactivos".toUpperCase()} ( {inactiveList.length} )
           </Subtitle>
-          <FlatList
-            showsHorizontalScrollIndicator={false}
-            data={clientList}
+          <SwipeListView
+            refreshControl={
+              <RefreshControl
+                colors={["#FF4949", "#FF4949"]}
+                // refreshing={isRefreshing}
+                // onRefresh={loadDetails}
+              />
+            }
+            // useFlatList={true}
+            data={inactiveList}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
+            renderHiddenItem={renderHiddenItem}
+            leftOpenValue={75}
+            rightOpenValue={-150}
+            disableRightSwipe
+            onRowOpen={(rowKey, rowMap) => {
+              setTimeout(() => {
+                rowMap[rowKey] && rowMap[rowKey].closeRow();
+              }, 2000);
+            }}
+            // previewRowKey={clientList[0].key}
+
+            // onRowDidOpen={onRowDidOpen}
           />
         </View>
       </View>
@@ -625,7 +791,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     width: 75,
-    height: 50,
+    height: 45,
     paddingRight: 17,
   },
   backRightBtnLeft: {

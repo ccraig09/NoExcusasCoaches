@@ -55,6 +55,7 @@
     "react-native-svg": "12.1.1",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-tab-view": "^2.x",
+    "react-native-tiny-toast": "^1.0.7",
     "react-native-web": "~0.13.12",
     "react-native-wheel-of-fortune": "^1.5.4",
     "styled-components": "^5.3.1",
