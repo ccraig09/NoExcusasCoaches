@@ -49,7 +49,7 @@ const greetingMessage =
     ? "Buenas Noches" // if for some reason the calculation didn't work
     : "Bienvenido";
 
-const ClientListScreen = ({ navigation }) => {
+const InActiveClientListScreen = ({ navigation }) => {
   const [clientList, setClientList] = useState([]);
   const [inactiveList, setInactiveList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
@@ -58,6 +58,7 @@ const ClientListScreen = ({ navigation }) => {
   const [userName, setUserName] = useState();
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const moment = extendMoment(Moment);
 
@@ -109,6 +110,9 @@ const ClientListScreen = ({ navigation }) => {
           data: clientList,
         })
       }
+      onLongPress={() => {
+        activateHandler(item.key, item.FirstName, item.active);
+      }}
     >
       <Avatar
         rounded
@@ -143,30 +147,30 @@ const ClientListScreen = ({ navigation }) => {
     }
   };
 
-  const reactivateHandler = async (Title, rowKey, rowMap) => {
+  const reactivateHandler = async (Title, rowKey) => {
     const toast = Toast.showLoading("Reactivando");
 
     console.log("reactivando", Title),
       await inactivar(rowKey, true),
-      closeRow(rowMap, rowKey),
+      // closeRow(rowMap, rowKey),
       // newData.splice(prevIndex, 1),
       // inactiveList(newData),
       fetchMembers();
     Toast.hide(toast);
   };
-  const inactivateHandler = async (Title, rowKey, rowMap) => {
+  const inactivateHandler = async (Title, rowKey) => {
     const toast = await Toast.showLoading("Inactivando");
 
     console.log("desactivando", Title),
       await inactivar(rowKey, false),
-      closeRow(rowMap, rowKey),
+      // closeRow(rowMap, rowKey),
       // newData.splice(prevIndex, 1),
       // clientList(newData), ¿˘
       fetchMembers();
     Toast.hide(toast);
   };
 
-  const activateHandler = async (rowMap, rowKey, Title, active) => {
+  const activateHandler = async (rowKey, Title, active) => {
     console.log("this is previndex", rowKey);
     // const newData = !active ? [...inactiveList] : [...clientList];
     // const prevIndex = !active
@@ -181,7 +185,7 @@ const ClientListScreen = ({ navigation }) => {
         },
         {
           text: "Si",
-          onPress: async () => reactivateHandler(Title, rowKey, rowMap),
+          onPress: async () => reactivateHandler(Title, rowKey),
         },
       ]);
     } else {
@@ -192,7 +196,7 @@ const ClientListScreen = ({ navigation }) => {
         },
         {
           text: "Si",
-          onPress: async () => inactivateHandler(Title, rowKey, rowMap),
+          onPress: async () => inactivateHandler(Title, rowKey),
         },
       ]);
     }
@@ -272,7 +276,7 @@ const ClientListScreen = ({ navigation }) => {
 
       return clientLowercase.indexOf(searchTermLowercase) > -1;
     });
-    setClientList(filteredClients);
+    setInactiveList(filteredClients);
   };
 
   useFocusEffect(
@@ -376,7 +380,11 @@ const ClientListScreen = ({ navigation }) => {
               .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
           );
 
-          setInMemoryClientes(list);
+          setInMemoryClientes(
+            list
+              .filter((data) => data.active == false)
+              .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+          );
           //   console.log("coachlist?:", coachList);
           // console.log("this the user?", user);
           // console.log(fitnessClasses);
@@ -515,7 +523,11 @@ const ClientListScreen = ({ navigation }) => {
           .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
       );
 
-      setInMemoryClientes(list);
+      setInMemoryClientes(
+        list
+          .filter((data) => data.active == false)
+          .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+      );
     } catch (e) {
       console.log(e);
     }
@@ -525,7 +537,7 @@ const ClientListScreen = ({ navigation }) => {
     <SafeAreaView style={styles.Container}>
       <StatusBar hidden={false} />
 
-      <View
+      {/* <View
         style={{
           width: width,
           marginTop: 20,
@@ -541,8 +553,6 @@ const ClientListScreen = ({ navigation }) => {
           size={90}
           // {!userInfo.userImg ? (
           icon={{ name: "user", type: "font-awesome" }}
-          // }
-          // style={{ padding: 0 }}
           source={{ uri: `${userInfo.userImg}` }}
           onPress={() => {
             if (!userInfo.userImg) {
@@ -577,7 +587,6 @@ const ClientListScreen = ({ navigation }) => {
         >
           <View style={styles.displayName}>
             <Text style={styles.subtitle}>{greetingMessage}, </Text>
-            {/* <View style={{ flexDirection: "row" }}> */}
             <Text style={styles.hello}>
               {!userInfo.FirstName ? (
                 userName === "" ? (
@@ -604,37 +613,23 @@ const ClientListScreen = ({ navigation }) => {
                 userInfo.FirstName.split(" ")[0]
               )}
             </Text>
-            {/* <Text style={styles.expire}>Desde:</Text>
-            <Text style={styles.expire}>
-              {dayjs(userInfo.createdAt).format()}
-            </Text> */}
+          
           </View>
-          {/* <View style={styles.qr}>
-            <Icon.Button
-              name="qr-code"
-              size={80}
-              color="black"
-              backgroundColor="#f0f3f5"
-              onPress={() => {
-                navigation.navigate("Qr");
-              }}
-            />
-          </View> */}
+       
           <View style={{ alignItems: "flex-end" }}></View>
           <View style={{ alignItems: "flex-end" }}>
             <TouchableOpacity onPress={() => navigation.navigate("Edit")}>
               <Icon name="settings" size={24} color="black" />
             </TouchableOpacity>
           </View>
-          {/* </View> */}
         </View>
-      </View>
+      </View> */}
 
       {/* <View style={styles.TitleBar}></View> */}
-      <View style={{ flex: 1, flexDirection: "row" }}>
+      <View style={{ flex: 1 }}>
         <View>
           <TextInput
-            placeholder="🔎 Activos"
+            placeholder="🔎 InActivos"
             placeholderTextColor="#dddddd"
             style={{
               width: "80%",
@@ -649,10 +644,19 @@ const ClientListScreen = ({ navigation }) => {
           />
 
           <Subtitle>
-            {"Activos".toUpperCase()} ( {clientList.length} )
+            {"InActivos".toUpperCase()} ( {inactiveList.length} )
           </Subtitle>
-
-          <SwipeListView
+          <FlatList
+            onRefresh={() => {
+              fetchMembers();
+            }}
+            refreshing={isLoading}
+            showsHorizontalScrollIndicator={false}
+            data={inactiveList}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+          />
+          {/* <SwipeListView
             refreshControl={
               <RefreshControl
                 colors={["#FF4949", "#FF4949"]}
@@ -676,9 +680,9 @@ const ClientListScreen = ({ navigation }) => {
             // previewRowKey={clientList[0].key}
 
             // onRowDidOpen={onRowDidOpen}
-          />
+          /> */}
         </View>
-        <View>
+        {/* <View>
           <TextInput
             placeholder="🔎 Inactivos"
             placeholderTextColor="#dddddd"
@@ -722,7 +726,7 @@ const ClientListScreen = ({ navigation }) => {
 
             // onRowDidOpen={onRowDidOpen}
           />
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );
@@ -810,4 +814,4 @@ const styles = StyleSheet.create({
     marginRight: 7,
   },
 });
-export default ClientListScreen;
+export default InActiveClientListScreen;

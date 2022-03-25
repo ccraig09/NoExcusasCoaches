@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+
 // import { createDrawerNavigator } from "@react-navigation/drawer";
 import Icon from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
-import ClientListScreen from "../screens/ClientListScreen";
+import ActiveClientListScreen from "../screens/ActiveClientListScreen";
+import InActiveClientListScreen from "../screens/InActiveClientListScreen";
 import InformationScreen from "../screens/InformationScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import NotificationScreenHistory from "../screens/NotificationScreenHistory";
@@ -17,7 +20,6 @@ import getFocusedRouteNameFromRoute from "@react-navigation/native";
 // import SpinScreen from "../components/SpinScreen";
 import ScanScreen from "../screens/ScanScreen";
 import Colors from "../constants/Colors";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import EditClientScreen from "../screens/EditClientScreen";
@@ -30,6 +32,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const TopTab = createMaterialTopTabNavigator();
 
 // const Tab = createBottomTabNavigator();
 // const Drawer = createDrawerNavigator();
@@ -182,16 +185,70 @@ const InformationStack = () => (
     /> */}
   </Stack.Navigator>
 );
+
+function TabStack() {
+  return (
+    <TopTab.Navigator
+      initialRouteName="Feed"
+      tab
+      tabBarOptions={{
+        activeTintColor: "#FFFFFF",
+        inactiveTintColor: "#F8F8F8",
+
+        style: {
+          marginTop: 50,
+          backgroundColor: Colors.noExprimary,
+        },
+        labelStyle: {
+          textAlign: "center",
+        },
+        indicatorStyle: {
+          borderBottomColor: "black",
+          borderBottomWidth: 2,
+        },
+      }}
+    >
+      <TopTab.Screen
+        name="Activos"
+        component={ActiveClientListScreen}
+        options={{
+          tabBarLabel: "Activos",
+          // tabBarIcon: ({ color, size }) => (
+          //   <MaterialCommunityIcons name="home" color={color} size={size} />
+          // ),
+        }}
+      />
+      <TopTab.Screen
+        name="Inactivos"
+        component={InActiveClientListScreen}
+        options={{
+          tabBarLabel: "Inactivos",
+          // tabBarIcon: ({ color, size }) => (
+          //   <MaterialCommunityIcons name="settings" color={color} size={size} />
+          // ),
+        }}
+      />
+    </TopTab.Navigator>
+  );
+}
 const ClientStack = () => (
   <Stack.Navigator initialRouteName="Home">
     <Stack.Screen
       name="Clients"
-      component={ClientListScreen}
+      component={TabStack}
       options={({ navigation }) => ({
         title: "",
         headerShown: false,
       })}
     />
+    {/* <Stack.Screen
+      name="Clients"
+      component={InActiveClientListScreen}
+      options={({ navigation }) => ({
+        title: "",
+        headerShown: false,
+      })}
+    /> */}
     <Stack.Screen
       name="Client"
       component={ClientDetailsScreen}
