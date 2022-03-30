@@ -235,7 +235,7 @@ const ClientStack = () => (
   <Stack.Navigator initialRouteName="Home">
     <Stack.Screen
       name="Clients"
-      component={TabStack}
+      component={ActiveClientListScreen}
       options={({ navigation }) => ({
         title: "",
         headerShown: false,

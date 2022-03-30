@@ -24,6 +24,7 @@ import { Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import IconMat from "react-native-vector-icons/MaterialCommunityIcons";
 import { SwipeListView } from "react-native-swipe-list-view";
 import Toast from "react-native-tiny-toast";
+import { ButtonGroup } from "react-native-elements";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "../constants/Colors";
@@ -51,6 +52,8 @@ const greetingMessage =
 
 const ActiveClientListScreen = ({ navigation }) => {
   const [clientList, setClientList] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   const [inactiveList, setInactiveList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
@@ -645,6 +648,16 @@ const ActiveClientListScreen = ({ navigation }) => {
       {/* <View style={styles.TitleBar}></View> */}
       <View style={{ flex: 1 }}>
         <View>
+          <ButtonGroup
+            buttons={["ACTIVOS", "INACTIVOS"]}
+            selectedIndex={selectedIndex}
+            onPress={(value) => {
+              console.log(value);
+              setSelectedIndex(value);
+            }}
+            selectedButtonStyle={{ backgroundColor: Colors.noExprimary }}
+            containerStyle={{ marginBottom: 20, borderRadius: 15 }}
+          />
           <TextInput
             placeholder="🔎 Activos"
             placeholderTextColor="#dddddd"
@@ -661,7 +674,8 @@ const ActiveClientListScreen = ({ navigation }) => {
           />
 
           <Subtitle>
-            {"Activos".toUpperCase()} ( {clientList.length} )
+            {"Activos".toUpperCase()} ({" "}
+            {selectedIndex === 0 ? clientList.length : inactiveList.length} )
           </Subtitle>
           <FlatList
             onRefresh={() => {
@@ -669,7 +683,7 @@ const ActiveClientListScreen = ({ navigation }) => {
             }}
             refreshing={isLoading}
             showsHorizontalScrollIndicator={false}
-            data={clientList}
+            data={selectedIndex === 0 ? clientList : inactiveList}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
           />
