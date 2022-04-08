@@ -56,6 +56,7 @@ const ActiveClientListScreen = ({ navigation }) => {
 
   const [inactiveList, setInactiveList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
+  const [inMemoryInActiveClientes, setInMemoryInActiveClientes] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
   const [Level1, setLevel1] = useState([]);
   const [userName, setUserName] = useState();
@@ -268,18 +269,34 @@ const ActiveClientListScreen = ({ navigation }) => {
   };
 
   const searchClients = (value) => {
-    const filteredClients = inMemoryClientes.filter((client) => {
-      let clientLowercase = (
-        client.FirstName +
-        " " +
-        client.LastName
-      ).toLowerCase();
+    const filteredClients =
+      selectedIndex === 0
+        ? inMemoryClientes.filter((client) => {
+            let clientLowercase = (
+              client.FirstName +
+              " " +
+              client.LastName
+            ).toLowerCase();
 
-      let searchTermLowercase = value.toLowerCase();
+            let searchTermLowercase = value.toLowerCase();
 
-      return clientLowercase.indexOf(searchTermLowercase) > -1;
-    });
-    setClientList(filteredClients);
+            return clientLowercase.indexOf(searchTermLowercase) > -1;
+          })
+        : inMemoryInActiveClientes.filter((client) => {
+            let clientLowercase = (
+              client.FirstName +
+              " " +
+              client.LastName
+            ).toLowerCase();
+
+            let searchTermLowercase = value.toLowerCase();
+
+            return clientLowercase.indexOf(searchTermLowercase) > -1;
+          });
+    selectedIndex === 1
+      ? setInactiveList(filteredClients)
+      : setClientList(filteredClients);
+    // setClientList(filteredClients);
   };
 
   useFocusEffect(
@@ -386,6 +403,11 @@ const ActiveClientListScreen = ({ navigation }) => {
           setInMemoryClientes(
             list
               .filter((data) => data.active !== false)
+              .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+          );
+          setInMemoryInActiveClientes(
+            list
+              .filter((data) => data.active == false)
               .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
           );
           //   console.log("coachlist?:", coachList);
@@ -531,6 +553,11 @@ const ActiveClientListScreen = ({ navigation }) => {
           .filter((data) => data.active !== false)
           .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
       );
+      setInMemoryInActiveClientes(
+        list
+          .filter((data) => data.active == false)
+          .sort((a, b) => (a.FirstName < b.FirstName ? -1 : 1))
+      );
     } catch (e) {
       console.log(e);
     }
@@ -659,7 +686,7 @@ const ActiveClientListScreen = ({ navigation }) => {
             containerStyle={{ marginBottom: 20, borderRadius: 15 }}
           />
           <TextInput
-            placeholder="🔎 Activos"
+            placeholder={selectedIndex === 0 ? "🔎 ACTIVOS" : "🔎 INACTIVOS"}
             placeholderTextColor="#dddddd"
             style={{
               width: "80%",
