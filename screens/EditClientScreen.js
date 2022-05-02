@@ -211,7 +211,11 @@ const EditClientScreen = ({ navigation, route }) => {
     const storageRef = firebase
       .storage()
       .ref()
-      .child("UserProfileImages/" + `${user.uid}/` + "ProfileImage");
+      .child(
+        "UserProfileImages/" +
+          `${selectedClient.clientData.userId}/` +
+          "ProfileImage"
+      );
 
     const task = storageRef.put(blob);
 

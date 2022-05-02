@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
   TouchableOpacity,
+  Button,
 } from "react-native";
 // import dayjs from "dayjs";
 import styled from "styled-components/native";
@@ -55,6 +56,7 @@ const ActiveClientListScreen = ({ navigation }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [inactiveList, setInactiveList] = useState([]);
+  const [fixedClientList, setFixedClientList] = useState([]);
   const [inMemoryClientes, setInMemoryClientes] = useState([]);
   const [inMemoryInActiveClientes, setInMemoryInActiveClientes] = useState([]);
   const [sportsClasses, setSportsClasses] = useState([]);
@@ -75,7 +77,7 @@ const ActiveClientListScreen = ({ navigation }) => {
   // const minDays = () => {
   //   if (dateDiff > 5) dateDiff = 0;
   // };
-  const { user, inactivar } = useContext(AuthContext);
+  const { user, inactivar, fbfix } = useContext(AuthContext);
   //   const db = firebase.firestore().collection("Members");
 
   const width = Dimensions.get("window").width;
@@ -268,6 +270,30 @@ const ActiveClientListScreen = ({ navigation }) => {
     );
   };
 
+  const fixHandler = async () => {
+    const promises = fixedClientList.map(async (item) => {
+      if (
+        item.userImg &&
+        item.userImg.includes("9tpuItr7xaMpuNsToMJUXtBLOwI2")
+        // item.userImg.includes("9tpuItr7xaMpuNsToMJUXtBLOwI2")
+      ) {
+        const newImage = item.userImg.replace(
+          "9tpuItr7xaMpuNsToMJUXtBLOwI2",
+          `${item.userId}`
+        );
+        // fbfix(fixedClientList.userId, newImage);
+
+        console.log("this one contains", newImage);
+      } else {
+        console.log("this one doesnt");
+      }
+    });
+
+    const results = await Promise.all(promises);
+
+    return results;
+  };
+
   const searchClients = (value) => {
     const filteredClients =
       selectedIndex === 0
@@ -388,6 +414,8 @@ const ActiveClientListScreen = ({ navigation }) => {
               });
             });
           // setClientList(list);
+
+          setFixedClientList(list);
 
           setClientList(
             list
@@ -698,6 +726,13 @@ const ActiveClientListScreen = ({ navigation }) => {
               borderBottomColor: "#7d90a0",
             }}
             onChangeText={(value) => searchClients(value)}
+          />
+
+          <Button
+            title="fix clients"
+            onPress={() => {
+              fixHandler();
+            }}
           />
 
           <Subtitle>

@@ -310,9 +310,16 @@ const InformationScreen = ({ navigation }) => {
       }
       return chunks;
     }
-    var splitClients = splitArrayIntoChunksOfLen(clients, clients.length / 4);
 
-    console.log(splitClients[3].length);
+    const filteredClients = clients.filter(
+      (element) => ![undefined].includes(element)
+    );
+    var splitClients = splitArrayIntoChunksOfLen(
+      filteredClients,
+      filteredClients.length / 4
+    );
+
+    console.log(splitClients);
     // console.log("Clients list", clients);
     // const m = Math.floor(clients.length / 3);
     // const n = Math.floor(clients.length / 3);

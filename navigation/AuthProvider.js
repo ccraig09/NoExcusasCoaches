@@ -659,6 +659,20 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
+        fbfix: async (id, newImage) => {
+          try {
+            await db.doc(id).set(
+              {
+                userImg: newImage,
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(e);
+            console.log(e);
+          }
+        },
         deletePromoImage: async (key, title) => {
           console.log("Deleting Image", title);
           try {
