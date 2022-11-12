@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [gUser, setGUser] = useState(null);
   const db = firebase.firestore().collection("Members");
+  const dbClasses = firebase.firestore().collection("Classes");
   const dbP = firebase.firestore().collection("Products");
   const dbC = firebase.firestore().collection("Coaches");
   const dbPromo = firebase.firestore().collection("Promos");
@@ -612,6 +613,24 @@ export const AuthProvider = ({ children }) => {
               },
               { merge: true }
             );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(e);
+            console.log(e);
+          }
+        },
+        uploadTrainingVideo: async (Levels) => {
+          // console.log(promoData);
+          try {
+            await dbClasses.doc("Basketball").set(
+              {
+                Levels,
+              },
+              { merge: true }
+            );
+
+            // timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            // }),
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
             alert(e);

@@ -4,6 +4,7 @@ import {
   Text,
   Image,
   StyleSheet,
+  Alert,
   Button,
   TouchableOpacity,
   TouchableNativeFeedback,
@@ -27,7 +28,7 @@ const ClassItem = (props) => {
           <View>
             <View style={styles.imageContainer}>
               <Image style={styles.image} source={{ uri: props.image }} />
-              <Text style={styles.cardTitle}>{props.title}</Text>
+              {/* <Text style={styles.cardTitle}>{props.title}</Text> */}
             </View>
             <View style={styles.details}>
               <Image
@@ -36,7 +37,10 @@ const ClassItem = (props) => {
               />
               <View style={styles.wrapper}>
                 <Text style={styles.caption}>{props.caption}</Text>
-                <Text style={styles.subtitle}>{props.subtitle}</Text>
+                {/* <Text style={styles.caption}>Proximamente!</Text> */}
+                {/* <Text style={styles.subtitle}>{props.subtitle}</Text> */}
+                {/* <Text style={styles.subtitle}>Proximamente!</Text> */}
+                {/* <Text style={styles.subtitle}>Estar atentos!</Text> */}
               </View>
             </View>
           </View>
@@ -48,9 +52,9 @@ const ClassItem = (props) => {
 
 const styles = StyleSheet.create({
   product: {
-    width: 315,
-    height: 280,
-    shadowColor: "blue",
+    width: 215,
+    height: 180,
+    shadowColor: "black",
     shadowOpacity: 0.26,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -63,8 +67,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   logo: {
-    width: 44,
-    height: 44,
+    width: 34,
+    height: 34,
   },
   touchable: {
     borderRadius: 14,
@@ -72,14 +76,14 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: 200,
+    height: 140,
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,
     overflow: "hidden",
   },
   image: {
     width: "100%",
-    height: 400,
+    height: "100%",
     position: "absolute",
     top: 0,
     left: 0,
@@ -97,7 +101,7 @@ const styles = StyleSheet.create({
   caption: {
     fontSize: 20,
     color: "white",
-    // fontFamily: "open-sans-bold",
+    fontFamily: "open-sans-bold",
     fontWeight: "600",
   },
   subtitle: {
@@ -117,8 +121,8 @@ const styles = StyleSheet.create({
   details: {
     flexDirection: "row",
     alignItems: "center",
-    height: 80,
-    paddingLeft: 20,
+    height: 40,
+    paddingLeft: 15,
   },
 });
 

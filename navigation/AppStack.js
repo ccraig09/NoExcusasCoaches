@@ -13,7 +13,10 @@ import InformationScreen from "../screens/InformationScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import NotificationScreenHistory from "../screens/NotificationScreenHistory";
 import PromoDetailScreen from "../screens/PromoDetailScreen";
+import AddVideoScreen from "../screens/AddVideoScreen";
 import CoachDetailsScreen from "../screens/CoachDetailsScreen";
+import UploadScreen from "../screens/UploadScreen";
+import SectionScreen from "../screens/SectionScreen";
 import ClientDetailsScreen from "../screens/ClientDetailsScreen";
 import ClientResultScreen from "../screens/ClientResultScreen";
 import getFocusedRouteNameFromRoute from "@react-navigation/native";
@@ -172,6 +175,30 @@ const InformationStack = () => (
       component={PromoDetailScreen}
       options={({ navigation }) => ({
         title: "Detalles",
+        headerShown: true,
+      })}
+    />
+    <Stack.Screen
+      name="AddVideoScreen"
+      component={AddVideoScreen}
+      options={({ navigation }) => ({
+        title: "Agregar Video",
+        headerShown: true,
+      })}
+    />
+    <Stack.Screen
+      name="SectionScreen"
+      component={SectionScreen}
+      options={({ navigation }) => ({
+        title: "Elegir Seccion",
+        headerShown: true,
+      })}
+    />
+    <Stack.Screen
+      name="UploadScreen"
+      component={UploadScreen}
+      options={({ navigation }) => ({
+        title: "Modficar Video",
         headerShown: true,
       })}
     />

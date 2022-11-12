@@ -316,7 +316,7 @@ const InformationScreen = ({ navigation }) => {
     );
     var splitClients = splitArrayIntoChunksOfLen(
       filteredClients,
-      filteredClients.length / 4
+      filteredClients.length / 5
     );
 
     console.log(splitClients);
@@ -389,6 +389,21 @@ const InformationScreen = ({ navigation }) => {
       },
       body: JSON.stringify({
         to: splitClients[3],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: `${notifyTitle}`,
+        body: `${notifySubtitle}`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[4],
         sound: "default",
         // data: { extraData: scannedUser },
         title: `${notifyTitle}`,
@@ -613,6 +628,12 @@ const InformationScreen = ({ navigation }) => {
               title="Enviar Notificacion"
               onPress={() => {
                 setNotify(true);
+              }}
+            />
+            <Button
+              title="Agregar Video"
+              onPress={() => {
+                navigation.navigate("AddVideoScreen");
               }}
             />
             <Button

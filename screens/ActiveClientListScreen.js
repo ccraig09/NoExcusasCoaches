@@ -728,12 +728,12 @@ const ActiveClientListScreen = ({ navigation }) => {
             onChangeText={(value) => searchClients(value)}
           />
 
-          <Button
+          {/* <Button
             title="fix clients"
             onPress={() => {
               fixHandler();
             }}
-          />
+          /> */}
 
           <Subtitle>
             {"Activos".toUpperCase()} ({" "}
