@@ -619,17 +619,17 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
-        uploadTrainingVideo: async (Levels) => {
+        uploadTrainingVideo: async (data, classId) => {
           // console.log(promoData);
           try {
-            await dbClasses.doc("Basketball").set(
+            await dbClasses.doc(classId).set(
               {
-                Levels,
+                ["Levels"]: data,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }
             );
 
-            // timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             // }),
           } catch (e) {
             const errorMes = firebaseErrors[e.code];

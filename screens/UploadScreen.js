@@ -6,16 +6,17 @@ import firebase from "../components/firebase";
 import { AuthContext } from "../navigation/AuthProvider";
 
 const UploadScreen = ({ route, navigation }) => {
+  const { classId, classes, classArrayIndex } = route.params;
   const { uploadTrainingVideo } = useContext(AuthContext);
 
   const [checked, setChecked] = useState(false);
   const [time, setTime] = useState("");
   const [title, setTitle] = useState("");
   const [videoUrl, setVideoUrl] = useState(null);
-  const [curentLevels, setCurentLevels] = useState([]);
-  const { classId, classes, classArrayIndex } = route.params;
+  const [curentLevels, setCurentLevels] = useState(classes);
+  console.log("logging levels", classes);
 
-  console.log("params", classArrayIndex);
+  console.log("params", route.params);
   const chooseVideoFromLibrary = async () => {
     console.log("opening gallery");
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -32,18 +33,24 @@ const UploadScreen = ({ route, navigation }) => {
   };
 
   const submitHandler = async () => {
-    let videoUrl = await uploadImage();
+    let videoUrl = await uploadVideo();
     console.log("video?", videoUrl);
-    var newVideo = [{ title: title }, { time: time }, { url: videoUrl }];
+    const newVideo = [{ Title: title, Time: time, url: videoUrl }];
+    setCurentLevels((prevState) => {
+      const newState = [...prevState];
+      newState.push(newVideo);
+      return newState;
+    });
 
-    // await uploadTrainingVideo(videoUrl, title, time, classId, classArrayIndex);
+    console.log("video log", curentLevels);
+    await uploadTrainingVideo(curentLevels, classId);
     // if (type === "Promocion") {
     //   triggerNotificationHandler();
     // }
     Alert.alert(`Video Subido!`, `Tu video se ha subido exitosamente!`);
   };
 
-  const uploadImage = async () => {
+  const uploadVideo = async () => {
     if (videoUrl === null) {
       return null;
     }

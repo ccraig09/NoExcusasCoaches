@@ -484,7 +484,7 @@ const HomeScreen = ({ navigation }) => {
       /> */}
 
       {/* <Pedometer /> */}
-      <Subtitle>{"Coaches prueba la la la".toUpperCase()}</Subtitle>
+      <Subtitle>{"Coaches".toUpperCase()}</Subtitle>
       <FlatList
         showsHorizontalScrollIndicator={false}
         data={coachList}

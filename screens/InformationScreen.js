@@ -319,7 +319,6 @@ const InformationScreen = ({ navigation }) => {
       filteredClients.length / 5
     );
 
-    console.log(splitClients);
     // console.log("Clients list", clients);
     // const m = Math.floor(clients.length / 3);
     // const n = Math.floor(clients.length / 3);

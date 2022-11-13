@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, Button } from "react-native";
 import ClassItem from "../components/ClassItem";
 import CategoryItem from "../components/CategoryItem";
 
@@ -23,6 +23,15 @@ const SectionScreen = ({ route, navigation }) => {
       >
         {classId}
       </Text>
+      <Button
+        title={"Agregar video"}
+        onPress={() => {
+          navigation.navigate("UploadScreen", {
+            classId: classId,
+            // classes: data,
+          });
+        }}
+      />
       <FlatList
         // horizontal={true}
         showsHorizontalScrollIndicator={false}
