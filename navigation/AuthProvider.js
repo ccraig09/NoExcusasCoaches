@@ -622,10 +622,10 @@ export const AuthProvider = ({ children }) => {
         uploadTrainingVideo: async (data, classId) => {
           // console.log(promoData);
           try {
-            await dbClasses.doc(classId).set(
+            await dbClasses.doc(classId).update(
               {
-                ["Levels"]: data,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                Levels: firebase.firestore.FieldValue.arrayUnion(...data),
+                // timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }
             );

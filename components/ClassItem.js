@@ -36,7 +36,7 @@ const ClassItem = (props) => {
                 source={require("../assets/icon-noexlogo.png")}
               />
               <View style={styles.wrapper}>
-                <Text style={styles.caption}>{props.caption}</Text>
+                <Text style={styles.caption}>{props.title}</Text>
                 {/* <Text style={styles.caption}>Proximamente!</Text> */}
                 {/* <Text style={styles.subtitle}>{props.subtitle}</Text> */}
                 {/* <Text style={styles.subtitle}>Proximamente!</Text> */}
