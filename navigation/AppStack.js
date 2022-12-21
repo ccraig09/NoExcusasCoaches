@@ -198,7 +198,7 @@ const InformationStack = () => (
       name="UploadScreen"
       component={UploadScreen}
       options={({ navigation }) => ({
-        title: "Modficar Video",
+        title: "Modificar Video",
         headerShown: true,
       })}
     />

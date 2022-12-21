@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, Button } from "react-native";
 import ClassItem from "../components/ClassItem";
 import CategoryItem from "../components/CategoryItem";
 
@@ -8,8 +8,8 @@ const SectionScreen = ({ route, navigation }) => {
 
   const { classId, classes } = route.params;
   const data1 = classes.filter((item) => item.Caption === classId);
-  const data = data1[0].Levels;
-  console.log("section", data);
+  const data = data1[0]?.Levels;
+  console.log("section", data1);
   //   setLevel1(data);
   return (
     <View style={styles.FlatList}>
@@ -21,8 +21,17 @@ const SectionScreen = ({ route, navigation }) => {
           marginTop: 10,
         }}
       >
-        {classId}
+        {data1[0].Title}
       </Text>
+      <Button
+        title={"Agregar video"}
+        onPress={() => {
+          navigation.navigate("UploadScreen", {
+            classId: classId,
+            classes: data,
+          });
+        }}
+      />
       <FlatList
         // horizontal={true}
         showsHorizontalScrollIndicator={false}
@@ -30,7 +39,7 @@ const SectionScreen = ({ route, navigation }) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={(itemData) => (
           <CategoryItem
-            image={itemData.item.Image}
+            image={itemData.item.coverImg}
             title={itemData.item.Title}
             logo={itemData.item.logo}
             caption={itemData.item.Caption}

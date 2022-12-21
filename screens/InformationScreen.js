@@ -33,6 +33,12 @@ import styled from "styled-components";
 import ActionSheet from "react-native-actions-sheet";
 import * as ImagePicker from "expo-image-picker";
 import firebase from "../components/firebase";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from "firebase/storage";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../constants/Colors";
 import { useFocusEffect } from "@react-navigation/native";
@@ -60,6 +66,7 @@ const InformationScreen = ({ navigation }) => {
   const [clientList, setClientList] = useState([]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
+  const storage = getStorage();
 
   // const clients = clientList.map((code) => code.expoPushToken);
   // const half_length = Math.ceil(clients.length / 2);
@@ -319,7 +326,6 @@ const InformationScreen = ({ navigation }) => {
       filteredClients.length / 5
     );
 
-    console.log(splitClients);
     // console.log("Clients list", clients);
     // const m = Math.floor(clients.length / 3);
     // const n = Math.floor(clients.length / 3);
@@ -505,24 +511,32 @@ const InformationScreen = ({ navigation }) => {
 
     setUploading(true);
     setTransferred(0);
-    const storageRef = firebase
-      .storage()
-      .ref()
-      .child("PromoImages/" + `${promoData.Subtitle}/` + "PromoImage");
+    const storageRef = ref(
+      storage,
+      "PromoImages/" + `${promoData.Subtitle}/` + "PromoImage"
+    );
 
-    const task = storageRef.put(blob);
+    const task = uploadBytes(storageRef, blob).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+    });
+
+    const uploadTask = uploadBytesResumable(storageRef, blob);
 
     // Set transferred state
-    task.on("state_changed", (taskSnapshot) => {
-      console.log(
-        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
-      );
-      setTransferred(
-        (
-          (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-          100
-        ).toFixed(0)
-      );
+    uploadTask.on("state_changed", (snapshot) => {
+      // Observe state change events such as progress, pause, and resume
+      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      setTransferred(progress);
+      console.log("Upload is " + progress + "% done");
+      switch (snapshot.state) {
+        case "paused":
+          console.log("Upload is paused");
+          break;
+        case "running":
+          console.log("Upload is running");
+          break;
+      }
     });
 
     try {
