@@ -20,15 +20,27 @@ import { Input } from "react-native-elements";
 import { AuthContext } from "../navigation/AuthProvider";
 import { useFocusEffect } from "@react-navigation/native";
 import firebase from "../components/firebase";
+import * as DocumentPicker from "expo-document-picker";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
-  const { userNotificationReceipt } = useContext(AuthContext);
+  const { userNotificationReceipt, addPdfDoc } = useContext(AuthContext);
 
   const { id, data } = route.params;
   const [notify, setNotify] = useState(false);
   const [selectedClient, setSelectedClient] = useState(false);
   const [notifyTitle, setNotifyTitle] = useState("");
   const [notifySubtitle, setNotifySubtitle] = useState("");
+  const [fileName, setFileName] = useState();
+  const [blobFile, setBlobFile] = useState(null);
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const storage = getStorage();
 
   // const selectedClient = data.find((key) => key.userId === id);
 
@@ -90,6 +102,53 @@ const ClientDetailsScreen = ({ route, navigation }) => {
       data: selectedClient.history,
     },
   ];
+
+  const addPdf = async () => {
+    let result = await DocumentPicker.getDocumentAsync({});
+    if (result != null) {
+      const r = await fetch(result.uri);
+      const b = await r.blob();
+      setFileName(result.name);
+      setBlobFile(b);
+      let pdfDoc = await uploadFile();
+      setPdfDoc(pdfDoc);
+    }
+  };
+
+  const postPdf = async () => {
+    console.log("url", pdfDoc);
+    await addPdfDoc(selectedClient, pdfDoc);
+    Alert.alert("PDF Subido!", "El PDF se ha Subido exitosamente!");
+  };
+  const uploadFile = async () => {
+    const storageRef = ref(
+      storage,
+      "UserPDF/" + `${selectedClient.userId}/` + "PDFDoc"
+    );
+
+    const task = uploadBytes(storageRef, blobFile).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+      try {
+        task;
+
+        const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          return downloadURL;
+        });
+
+        // Alert.alert(
+        //   "Cliente Actualizado!",
+        //   "El Cliente se ha actualizado exitosamente!"
+        // );
+
+        // navigation.goBack();
+        return url;
+      } catch (e) {
+        console.log(">>error:", e);
+        return null;
+      }
+    });
+  };
 
   const triggerNotificationHandler = () => {
     fetch("https://exp.host/--/api/v2/push/send", {
@@ -227,6 +286,20 @@ const ClientDetailsScreen = ({ route, navigation }) => {
         <Text style={styles.userInfoPoints}>
           Puntos Acumulados: {selectedClient.points}
         </Text>
+        <Button
+          title={"Elegir Pdf"}
+          onPress={() => {
+            addPdf();
+          }}
+        />
+        {blobFile !== null && (
+          <Button
+            title={"Subir Entrenamiento"}
+            onPress={() => {
+              postPdf();
+            }}
+          />
+        )}
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.mainbox}>

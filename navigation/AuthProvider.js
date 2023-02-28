@@ -680,6 +680,15 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
+        addPdfDoc: async (userInfo, pdf) => {
+          try {
+            await db.doc(userInfo.userId).set({ pdf: pdf }, { merge: true });
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(e);
+            console.log(e);
+          }
+        },
         fbfix: async (id, newImage) => {
           try {
             await db.doc(id).set(
