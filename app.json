@@ -3,19 +3,21 @@
     "name": "NoExcusasCoaches",
     "slug": "NoExcusasCoaches",
     "version": "1.0.0",
-    
+
     "icon": "./assets/icon-noexlogo.png",
     "splash": {
       "image": "./assets/icon-noexlogo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#CD9A21"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "notification": {
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
+    },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ccraig09.NoExcusasCoaches"
@@ -31,7 +33,6 @@
       ]
     ],
     "android": {
-      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

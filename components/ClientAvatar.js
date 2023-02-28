@@ -54,7 +54,7 @@ const ClientAvatar = (props) => {
             fontSize: 12,
           }}
         >
-          {isNaN(dateDiff) ? "Actualizar plan" : Math.abs(dateDiff)}
+          {isNaN(dateDiff) ? "Actualizar plan" : Math.floor(Math.abs(dateDiff))}
         </Text>
         {!isNaN(dateDiff) && (
           <Text style={{ fontSize: 12, color: "grey", fontWeight: "bold" }}>

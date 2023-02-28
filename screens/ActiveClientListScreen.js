@@ -24,7 +24,9 @@ import * as dayjs from "dayjs";
 import { Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import IconMat from "react-native-vector-icons/MaterialCommunityIcons";
 import { SwipeListView } from "react-native-swipe-list-view";
-import Toast from "react-native-tiny-toast";
+// import Toast from "react-native-tiny-toast";
+import Toast from "react-native-toast-message";
+
 import { ButtonGroup } from "react-native-elements";
 
 import Icon from "react-native-vector-icons/Ionicons";
@@ -154,26 +156,32 @@ const ActiveClientListScreen = ({ navigation }) => {
   };
 
   const reactivateHandler = async (Title, rowKey) => {
-    const toast = Toast.showLoading("Reactivando");
-
+    await Toast.show({
+      type: "info",
+      autoHide: false,
+      text1: "Reactivando",
+    });
     console.log("reactivando", Title),
       await inactivar(rowKey, true),
       // closeRow(rowMap, rowKey),
       // newData.splice(prevIndex, 1),
       // inactiveList(newData),
       fetchMembers();
-    Toast.hide(toast);
+    Toast.hide();
   };
   const inactivateHandler = async (Title, rowKey) => {
-    const toast = await Toast.showLoading("Inactivando");
-
+    await Toast.show({
+      type: "info",
+      autoHide: false,
+      text1: "Inactivando",
+    });
     console.log("desactivando", Title),
       await inactivar(rowKey, false),
       // closeRow(rowMap, rowKey),
       // newData.splice(prevIndex, 1),
       // clientList(newData), ¿˘
       fetchMembers();
-    Toast.hide(toast);
+    Toast.hide();
   };
 
   const activateHandler = async (rowKey, Title, active) => {
@@ -820,6 +828,7 @@ const ActiveClientListScreen = ({ navigation }) => {
             // onRowDidOpen={onRowDidOpen}
           />
         </View> */}
+        <Toast position="bottom" bottomOffset={20} />
       </View>
     </SafeAreaView>
   );
