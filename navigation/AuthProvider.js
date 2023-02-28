@@ -1,6 +1,7 @@
 import React, { createContext, useState } from "react";
 import { Alert } from "react-native";
 import firebase from "../components/firebase";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 import * as Google from "expo-google-app-auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   const dbLog = firebase.firestore().collection("ScanHistory");
   const dbNotifications = firebase.firestore().collection("Notifications");
   const dbUA = firebase.firestore().collection("User Announcements");
+  const storage = getStorage();
 
   const firebaseErrors = {
     "auth/app-deleted": "No se encontró la base de datos",
@@ -694,23 +696,20 @@ export const AuthProvider = ({ children }) => {
         },
         deletePromoImage: async (key, title) => {
           console.log("Deleting Image", title);
+          const desertRef = ref(storage, `PromoImages/${title}/PromoImage`);
+
           try {
-            await firebase
-              .storage()
-              .ref()
-              .child(`PromoImages/${title}/PromoImage`)
-              .delete()
-              .then(
-                dbPromo
-                  .doc(key)
-                  .delete()
-                  .then(() => {
-                    console.log("Document successfully deleted!");
-                  })
-                  .catch((error) => {
-                    console.error("Error removing document: ", error);
-                  })
-              );
+            await deleteObject(desertRef).then(
+              dbPromo
+                .doc(key)
+                .delete()
+                .then(() => {
+                  console.log("Document successfully deleted!");
+                })
+                .catch((error) => {
+                  console.error("Error removing document: ", error);
+                })
+            );
           } catch (e) {
             const errorMes = firebaseErrors[e.code];
             alert(errorMes);

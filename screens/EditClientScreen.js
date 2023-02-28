@@ -49,6 +49,13 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import firebase from "../components/firebase";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 
 import * as ImagePicker from "expo-image-picker";
 
@@ -76,6 +83,7 @@ const EditClientScreen = ({ navigation, route }) => {
   const [showEnd, setShowEnd] = useState(false);
   const [startDate, setStartDate] = useState(false);
   const [endDate, setEndDate] = useState(false);
+  const storage = getStorage();
 
   const dimensions = useWindowDimensions();
   const top = useSharedValue(dimensions.height);
@@ -176,7 +184,7 @@ const EditClientScreen = ({ navigation, route }) => {
 
   const submitChanges = async () => {
     let imageUrl = await uploadImage();
-    console.log(imageUrl);
+    console.log(">>>imageURL:", imageUrl);
     if (imageUrl == null && userInfo.userImg) {
       imageUrl = userInfo.userImg;
     }
@@ -186,12 +194,14 @@ const EditClientScreen = ({ navigation, route }) => {
 
     await editClient(userInfo, imageUrl);
 
-    if (image == null) {
-      Alert.alert(
-        "Cliente Actualizado!",
-        "El Cliente se ha actualizado exitosamente!"
-      );
-    }
+    // if (image == null) {
+    setUploading(false);
+
+    Alert.alert(
+      "Cliente Actualizado!",
+      "El Cliente se ha actualizado exitosamente!"
+    );
+    // }
 
     navigation.goBack();
   };
@@ -207,48 +217,58 @@ const EditClientScreen = ({ navigation, route }) => {
     // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
 
     setUploading(true);
-    setTransferred(0);
-    const storageRef = firebase
-      .storage()
-      .ref()
-      .child(
-        "UserProfileImages/" +
-          `${selectedClient.clientData.userId}/` +
-          "ProfileImage"
-      );
 
-    const task = storageRef.put(blob);
+    const storageRef = ref(
+      storage,
+      "UserProfileImages/" +
+        `${selectedClient.clientData.userId}/` +
+        "ProfileImage"
+    );
 
-    // Set transferred state
-    task.on("state_changed", (taskSnapshot) => {
-      console.log(
-        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
-      );
-      setTransferred(
-        (
-          (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-          100
-        ).toFixed(0)
-      );
+    const task = uploadBytes(storageRef, blob).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+
+      // const uploadTask = uploadBytesResumable(storageRef, blob);
+
+      // // Set transferred state
+      // uploadTask.on("state_changed", (snapshot) => {
+      //   // Observe state change events such as progress, pause, and resume
+      //   // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      //   const progress = Math.floor(
+      //     (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+      //   );
+      //   setTransferred(progress);
+      //   console.log("Upload is " + progress + "% done");
+      //   switch (snapshot.state) {
+      //     case "paused":
+      //       console.log("Upload is paused");
+      //       break;
+      //     case "running":
+      //       console.log("Upload is running");
+      //       break;
+      //   }
+      // });
+
+      try {
+        task;
+
+        const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          return downloadURL;
+        });
+
+        // Alert.alert(
+        //   "Cliente Actualizado!",
+        //   "El Cliente se ha actualizado exitosamente!"
+        // );
+
+        // navigation.goBack();
+        return url;
+      } catch (e) {
+        console.log(">>error:", e);
+        return null;
+      }
     });
-
-    try {
-      await task;
-
-      const url = await storageRef.getDownloadURL();
-
-      setUploading(false);
-      Alert.alert(
-        "Cliente Actualizado!",
-        "El Cliente se ha actualizado exitosamente!"
-      );
-
-      navigation.goBack();
-      return url;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
   };
 
   return (
@@ -874,8 +894,8 @@ const EditClientScreen = ({ navigation, route }) => {
 
       {uploading ? (
         <View style={{ justifyContent: "center", alignItems: "center" }}>
-          <Text>{transferred}% Completado</Text>
-          <ActivityIndicator size="large" color="0000ff" />
+          <Text>Actualizando</Text>
+          <ActivityIndicator size="large" color={Colors.noExprimary} />
         </View>
       ) : (
         <TouchableOpacity style={styles.commandButton} onPress={submitChanges}>

@@ -38,6 +38,7 @@ import {
   ref,
   uploadBytes,
   uploadBytesResumable,
+  getDownloadURL,
 } from "firebase/storage";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../constants/Colors";
@@ -45,7 +46,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const actionSheetRef = createRef();
 const InformationScreen = ({ navigation }) => {
-  const { user, logout, uploadPromo, deletePromoImage, storeNotification } =
+  const { uploadPromo, deletePromoImage, storeNotification } =
     useContext(AuthContext);
   const [image, setImage] = useState(null);
   const [type, setType] = useState("");
@@ -67,6 +68,16 @@ const InformationScreen = ({ navigation }) => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const storage = getStorage();
+
+  function splitArrayIntoChunksOfLen(arr, len) {
+    var chunks = [],
+      i = 0,
+      n = arr.length;
+    while (i < n) {
+      chunks.push(arr.slice(i, (i += len)));
+    }
+    return chunks;
+  }
 
   // const clients = clientList.map((code) => code.expoPushToken);
   // const half_length = Math.ceil(clients.length / 2);
@@ -249,12 +260,20 @@ const InformationScreen = ({ navigation }) => {
       "Tenemos una nueva promocion! Abrir la app para ver los detalles"
     );
     const clients = clientList.map((code) => code.expoPushToken);
-    console.log("Clients list", clients);
-    const m = Math.floor(clients.length / 2);
-    const [leftSide, rightSide] = [
-      clients.slice(0, m),
-      clients.slice(m, clients.length),
-    ];
+
+    const filteredClients = clients.filter(
+      (element) => ![undefined].includes(element)
+    );
+    var splitClients = splitArrayIntoChunksOfLen(
+      filteredClients,
+      filteredClients.length / 5
+    );
+    // console.log("Clients list", clients);
+    // const m = Math.floor(clients.length / 2);
+    // const [leftSide, rightSide] = [
+    //   clients.slice(0, m),
+    //   clients.slice(m, clients.length),
+    // ];
     // Notifications.scheduleNotificationAsync({
     //   content: {
     //     title: "My first local notification",
@@ -273,7 +292,7 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: leftSide,
+        to: splitClients[0],
         sound: "default",
         // data: { extraData: scannedUser },
         title: "Nueva Promocion!",
@@ -288,7 +307,52 @@ const InformationScreen = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: rightSide,
+        to: splitClients[1],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: "Nueva Promocion!",
+        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[2],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: "Nueva Promocion!",
+        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[3],
+        sound: "default",
+        // data: { extraData: scannedUser },
+        title: "Nueva Promocion!",
+        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
+      }),
+    });
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: splitClients[4],
         sound: "default",
         // data: { extraData: scannedUser },
         title: "Nueva Promocion!",
@@ -308,15 +372,6 @@ const InformationScreen = ({ navigation }) => {
 
   const clientNotification = () => {
     const clients = clientList.map((code) => code.expoPushToken);
-    function splitArrayIntoChunksOfLen(arr, len) {
-      var chunks = [],
-        i = 0,
-        n = arr.length;
-      while (i < n) {
-        chunks.push(arr.slice(i, (i += len)));
-      }
-      return chunks;
-    }
 
     const filteredClients = clients.filter(
       (element) => ![undefined].includes(element)
@@ -493,6 +548,8 @@ const InformationScreen = ({ navigation }) => {
     // }
 
     await uploadPromo(promoData, imageUrl, type);
+    setUploading(false);
+
     if (type === "Promocion") {
       triggerNotificationHandler();
     }
@@ -518,39 +575,41 @@ const InformationScreen = ({ navigation }) => {
 
     const task = uploadBytes(storageRef, blob).then((snapshot) => {
       console.log("Uploaded a blob or file!");
-    });
+      // });
 
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+      // const uploadTask = uploadBytesResumable(storageRef, blob);
 
-    // Set transferred state
-    uploadTask.on("state_changed", (snapshot) => {
-      // Observe state change events such as progress, pause, and resume
-      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      setTransferred(progress);
-      console.log("Upload is " + progress + "% done");
-      switch (snapshot.state) {
-        case "paused":
-          console.log("Upload is paused");
-          break;
-        case "running":
-          console.log("Upload is running");
-          break;
+      // // Set transferred state
+      // uploadTask.on("state_changed", (snapshot) => {
+      //   // Observe state change events such as progress, pause, and resume
+      //   // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      //   const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      //   setTransferred(progress);
+      //   console.log("Upload is " + progress + "% done");
+      //   switch (snapshot.state) {
+      //     case "paused":
+      //       console.log("Upload is paused");
+      //       break;
+      //     case "running":
+      //       console.log("Upload is running");
+      //       break;
+      //   }
+      // });
+
+      try {
+        task;
+
+        const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          return downloadURL;
+        });
+
+        return url;
+      } catch (e) {
+        console.log(e);
+        return null;
       }
     });
-
-    try {
-      await task;
-
-      const url = await storageRef.getDownloadURL();
-
-      setUploading(false);
-
-      return url;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
   };
 
   const loadDetails = () => {
