@@ -11,6 +11,8 @@ import ActiveClientListScreen from "../screens/ActiveClientListScreen";
 import InActiveClientListScreen from "../screens/InActiveClientListScreen";
 import InformationScreen from "../screens/InformationScreen";
 import NotificationScreen from "../screens/NotificationScreen";
+import EvalScreen from "../screens/EvalScreen";
+import EditEvalScreen from "../screens/EditEvalScreen";
 import NotificationScreenHistory from "../screens/NotificationScreenHistory";
 import PromoDetailScreen from "../screens/PromoDetailScreen";
 import AddVideoScreen from "../screens/AddVideoScreen";
@@ -350,6 +352,22 @@ const AppStack = ({ navigation }) => (
       component={EditProfileScreen}
       options={{
         title: "Editar Perfil",
+      }}
+    />
+    <Stack.Screen
+      name="Eval"
+      component={EvalScreen}
+      options={{
+        title: "Evaluacion",
+        headerShown: false,
+      }}
+    />
+    <Stack.Screen
+      name="Edit Eval"
+      component={EditEvalScreen}
+      options={{
+        title: "Editar Evaluacion",
+        headerShown: true,
       }}
     />
   </Stack.Navigator>

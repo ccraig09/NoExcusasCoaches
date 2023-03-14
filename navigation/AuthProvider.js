@@ -21,6 +21,8 @@ export const AuthProvider = ({ children }) => {
   const dbLog = firebase.firestore().collection("ScanHistory");
   const dbNotifications = firebase.firestore().collection("Notifications");
   const dbUA = firebase.firestore().collection("User Announcements");
+  const dbME = firebase.firestore().collection("Members");
+
   const storage = getStorage();
 
   const firebaseErrors = {
@@ -454,6 +456,34 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
+        newEval: async (title, id) => {
+          console.log("creating new eval", id);
+          try {
+            await dbME.doc(id).collection("Member Evals").doc().set(
+              {
+                title: title,
+                ownerId: id,
+                Peso: "",
+                Imc: "",
+                Grasa: "",
+                Musculo: "",
+                Basal: "",
+                GoalBasal: "",
+                Agua: "",
+                Proteina: "",
+                Osea: "",
+                Metabolica: "",
+                Viseral: "",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         editProfile: async (userInfo, userImg) => {
           try {
             await dbC.doc(user.uid).set(
@@ -639,6 +669,33 @@ export const AuthProvider = ({ children }) => {
             console.log(e);
           }
         },
+        editEval: async (evalInfo, evalId) => {
+          // console.log("creating new eval", title);
+          try {
+            await dbME.doc(user.uid).collection("Member Evals").doc(evalId).set(
+              {
+                Peso: evalInfo.Peso,
+                Imc: evalInfo.Imc,
+                Grasa: evalInfo.Grasa,
+                Musculo: evalInfo.Musculo,
+                Basal: evalInfo.Basal,
+                GoalBasal: evalInfo.GoalBasal,
+                Agua: evalInfo.Agua,
+                Proteina: evalInfo.Proteina,
+                Osea: evalInfo.Osea,
+                Metabolica: evalInfo.Metabolica,
+                Viseral: evalInfo.Viseral,
+
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
+          }
+        },
         editClient: async (userInfo, userImg) => {
           try {
             await db.doc(userInfo.userId).set(
@@ -701,6 +758,37 @@ export const AuthProvider = ({ children }) => {
             const errorMes = firebaseErrors[e.code];
             alert(e);
             console.log(e);
+          }
+        },
+        deleteEval: async (docId, id) => {
+          console.log("deleteing eval", docId);
+          try {
+            await dbME.doc(id).collection("Member Evals").doc(docId).delete();
+          } catch (e) {
+            console.log(e);
+          }
+        },
+        deleteEvalImage: async (type, Eid, docId) => {
+          console.log("Deleting Image", type);
+          try {
+            await firebase
+              .storage()
+              .ref()
+              .child(`UserBaseImages/${user.uid}/${Eid}/${type}`)
+              .delete()
+              .then(
+                dbME
+                  .doc(user.uid)
+                  .collection("Member Evals")
+                  .doc(docId)
+                  .update({
+                    [type]: firebase.firestore.FieldValue.delete(),
+                  })
+              );
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(errorMes);
+            console.log(errorMes);
           }
         },
         deletePromoImage: async (key, title) => {

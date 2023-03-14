@@ -1,4 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, {
+  useState,
+  useContext,
+  useCallback,
+  useEffect,
+  Fragment,
+} from "react";
 import {
   View,
   Text,
@@ -7,6 +13,7 @@ import {
   FlatList,
   Image,
   StatusBar,
+  Modal,
   Alert,
   SafeAreaView,
   Dimensions,
@@ -18,8 +25,14 @@ import Colors from "../constants/Colors";
 import { ListItem, Avatar } from "react-native-elements";
 import { Input } from "react-native-elements";
 import { AuthContext } from "../navigation/AuthProvider";
+import EvalBlock from "../components/EvalBlock";
 import { useFocusEffect } from "@react-navigation/native";
 import firebase from "../components/firebase";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "react-native-modal-datetime-picker";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+
 import * as DocumentPicker from "expo-document-picker";
 import {
   getStorage,
@@ -30,7 +43,8 @@ import {
 } from "firebase/storage";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
-  const { userNotificationReceipt, addPdfDoc } = useContext(AuthContext);
+  const { userNotificationReceipt, addPdfDoc, newEval, deleteEval } =
+    useContext(AuthContext);
 
   const { id, data } = route.params;
   const [notify, setNotify] = useState(false);
@@ -40,7 +54,13 @@ const ClientDetailsScreen = ({ route, navigation }) => {
   const [fileName, setFileName] = useState();
   const [blobFile, setBlobFile] = useState(null);
   const [pdfDoc, setPdfDoc] = useState(null);
+  const [pdfModal, setPdfModal] = useState(false);
+  const [pdfLink, setPdfLink] = useState("");
+  const [userEvals, setUserEvals] = useState([]);
+  const [evalDateModal, setEvalDateModal] = useState(false);
+
   const storage = getStorage();
+  const moment = extendMoment(Moment);
 
   // const selectedClient = data.find((key) => key.userId === id);
 
@@ -67,7 +87,34 @@ const ClientDetailsScreen = ({ route, navigation }) => {
           console.log(e);
         }
       };
+      const fetchMemberEvals = async () => {
+        try {
+          const list = [];
+          await firebase
+            .firestore()
+            .collection("Members")
+            .doc(id)
+            .collection("Member Evals")
+            .orderBy("title", "asc")
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                const { title, ownerId, timeStamp } = doc.data();
+                list.push({
+                  key: doc.id,
+                  title: title,
+                  ownerId: ownerId,
+                  timeStamp: timeStamp,
+                });
+              });
+            });
+          setUserEvals(list);
+        } catch (e) {
+          console.log(e);
+        }
+      };
       fetchClientDetails();
+      fetchMemberEvals();
     }, [])
   );
 
@@ -103,6 +150,16 @@ const ClientDetailsScreen = ({ route, navigation }) => {
     },
   ];
 
+  const selectEvalHandler = (id, title, time) => {
+    navigation.navigate("Eval", {
+      Age: selectedClient.Age,
+      Gender: selectedClient.Gender,
+      evalId: id,
+      evalTitle: title,
+      evalDate: time,
+    });
+  };
+
   const addPdf = async () => {
     let result = await DocumentPicker.getDocumentAsync({});
     if (result != null) {
@@ -110,16 +167,17 @@ const ClientDetailsScreen = ({ route, navigation }) => {
       const b = await r.blob();
       setFileName(result.name);
       setBlobFile(b);
-      let pdfDoc = await uploadFile();
-      setPdfDoc(pdfDoc);
     }
+    let pdfDoc = await uploadFile();
+    console.log(">>>>>pdf doc", pdfDoc);
   };
 
   const postPdf = async () => {
-    console.log("url", pdfDoc);
-    await addPdfDoc(selectedClient, pdfDoc);
+    console.log("url", pdfLink);
+    await addPdfDoc(selectedClient, pdfLink);
     Alert.alert("PDF Subido!", "El PDF se ha Subido exitosamente!");
   };
+
   const uploadFile = async () => {
     const storageRef = ref(
       storage,
@@ -133,15 +191,9 @@ const ClientDetailsScreen = ({ route, navigation }) => {
 
         const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
           console.log("File available at", downloadURL);
+          setPdfDoc(downloadURL);
           return downloadURL;
         });
-
-        // Alert.alert(
-        //   "Cliente Actualizado!",
-        //   "El Cliente se ha actualizado exitosamente!"
-        // );
-
-        // navigation.goBack();
         return url;
       } catch (e) {
         console.log(">>error:", e);
@@ -180,6 +232,59 @@ const ClientDetailsScreen = ({ route, navigation }) => {
     setNotifySubtitle("");
   };
 
+  const fetchMemberEvals = async () => {
+    try {
+      const list = [];
+      await firebase
+        .firestore()
+        .collection("Members")
+        .doc(id)
+        .collection("Member Evals")
+        .orderBy("title", "asc")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const { title, ownerId, timeStamp } = doc.data();
+            list.push({
+              key: doc.id,
+              title: title,
+              ownerId: ownerId,
+              timeStamp: timeStamp,
+            });
+          });
+        });
+      setUserEvals(list);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const dateHandler = useCallback(async (date) => {
+    setEvalDateModal(false);
+    var dateChanged = moment(date).format("DD-MM-YYYY");
+    addEvalHandler(dateChanged);
+    setEvalDateModal(false);
+  });
+
+  const addEvalHandler = async (dateChanged) => {
+    await newEval(dateChanged, selectedClient.userId);
+    fetchMemberEvals();
+  };
+
+  const deleteHandler = async (docId) => {
+    Alert.alert("Borrar Evaluacion?", "Quiere borrar este evaluación?", [
+      { text: "No", style: "default" },
+      {
+        text: "Si",
+        style: "destructive",
+        onPress: async () => {
+          await deleteEval(docId, selectedClient.userId);
+          fetchMemberEvals();
+        },
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ marginTop: 20 }}>
@@ -214,11 +319,9 @@ const ClientDetailsScreen = ({ route, navigation }) => {
           </Avatar>
         </TouchableOpacity>
       </View>
-
       <Text style={styles.userName}>
         {selectedClient.FirstName} {selectedClient.LastName}
       </Text>
-
       <Text style={styles.userInfoTitle}>{selectedClient.Phone}</Text>
       <Text style={styles.userInfoTitle}>{selectedClient.email}</Text>
       <View style={styles.userBtnWrapper}>
@@ -287,20 +390,167 @@ const ClientDetailsScreen = ({ route, navigation }) => {
           Puntos Acumulados: {selectedClient.points}
         </Text>
         <Button
-          title={"Elegir Pdf"}
+          title={"Agregar Pdf"}
           onPress={() => {
-            addPdf();
+            setPdfModal(true);
           }}
         />
-        {blobFile !== null && (
-          <Button
-            title={"Subir Entrenamiento"}
-            onPress={() => {
-              postPdf();
-            }}
-          />
+        {pdfModal && (
+          <>
+            <View style={styles.action}>
+              <Input
+                label="Enlace"
+                leftIcon={{ type: "font-awesome", name: "edit" }}
+                placeholder="Enlace"
+                placeholderTextColor="#666666"
+                style={styles.textInput}
+                value={pdfLink}
+                onChangeText={(text) => setPdfLink(text)}
+                autoCorrect={false}
+              />
+            </View>
+            <TouchableOpacity
+              style={
+                pdfLink === ""
+                  ? styles.commandButtonDsiabled
+                  : styles.commandButton
+              }
+              onPress={() => {
+                postPdf();
+              }}
+              disabled={pdfLink === "" ? true : false}
+            >
+              <Text style={styles.panelButtonTitle}>Agregar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.commandButton}
+              onPress={() => {
+                setPdfModal(false);
+              }}
+            >
+              <Text style={styles.panelButtonTitle}>Cancelar</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          Alert.alert(
+            "Nuevo Evaluacion",
+            "Quisieras agregar una nueva evaluacion?",
+            [
+              {
+                text: "Si",
+                onPress: () => setEvalDateModal(true),
+              },
+              {
+                text: "Cancelar",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+            ]
+          );
+        }}
+        style={{ marginRight: 20 }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View>
+            <Text style={{ fontSize: 10, color: "silver" }}>
+              Agregar Evaluación{" "}
+            </Text>
+          </View>
+          <View
+            style={{
+              width: 35,
+              height: 30,
+              borderColor: Colors.noExBright,
+              borderRadius: 10,
+              justifyContent: "center",
+              alignItems: "center",
+              borderWidth: 2,
+            }}
+          >
+            <Ionicons
+              name={Platform.OS === "android" ? "md-add" : "ios-add"}
+              size={20}
+              color="grey"
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
+      <Text style={{ fontSize: 20, fontWeight: "bold" }}>Evals:</Text>
+
+      {userEvals.length === 0 ? (
+        <View
+          style={{
+            height: 200,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              padding: 10,
+              fontSize: 15,
+              textAlign: "center",
+              color: "#b8bece",
+            }}
+          >
+            Oprime el {<Text style={{ fontSize: 25 }}>'+'</Text>} para crear tu
+            primer evaluación.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={userEvals}
+          keyExtractor={(item) => item.key}
+          renderItem={(itemData) => (
+            <EvalBlock
+              title={itemData.item.title}
+              onSelect={() => {
+                selectEvalHandler(
+                  itemData.item.key,
+                  itemData.item.title,
+                  itemData.item.timeStamp
+                );
+              }}
+              longPress={() => {
+                deleteHandler(itemData.item.key);
+              }}
+            />
+          )}
+        />
+      )}
+      {evalDateModal && (
+        <View>
+          <DateTimePicker
+            mode="date"
+            isVisible={evalDateModal}
+            locale="es-ES"
+            onConfirm={
+              (date) => {
+                dateHandler(date);
+              }
+              // this.handleDatePicked(date, "start", "showStart")
+            }
+            onCancel={() => {
+              setEvalDateModal(false);
+            }}
+            cancelTextIOS={"Cancelar"}
+            confirmTextIOS={"Confirmar"}
+            headerTextIOS={"Elige una fecha"}
+          />
+        </View>
+      )}
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.mainbox}>
           {list.map((l, i) => (

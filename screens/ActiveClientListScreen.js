@@ -24,7 +24,6 @@ import * as dayjs from "dayjs";
 import { Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import IconMat from "react-native-vector-icons/MaterialCommunityIcons";
 import { SwipeListView } from "react-native-swipe-list-view";
-// import Toast from "react-native-tiny-toast";
 import Toast from "react-native-toast-message";
 
 import { ButtonGroup } from "react-native-elements";

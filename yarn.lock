@@ -9210,6 +9210,11 @@ react-native-screens@~3.18.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
+react-native-segmented-progress-bar@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/react-native-segmented-progress-bar/-/react-native-segmented-progress-bar-1.0.10.tgz#9cd4362575e58e80696f0712af1fb93e90204547"
+  integrity sha512-Qgyr6yw64ak90spOqwfaYFagKWTGqjLT0B1SygtXcjvqxtK7GQ7qQ2N1MKDTZaypa+owpdNKgi3PkTMIkc98pw==
+
 react-native-size-matters@^0.3.1:
   version "0.3.1"
   resolved "https://registry.npmjs.org/react-native-size-matters/-/react-native-size-matters-0.3.1.tgz"
