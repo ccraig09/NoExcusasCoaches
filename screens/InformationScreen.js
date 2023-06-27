@@ -264,102 +264,29 @@ const InformationScreen = ({ navigation }) => {
     const filteredClients = clients.filter(
       (element) => ![undefined].includes(element)
     );
-    var splitClients = splitArrayIntoChunksOfLen(
-      filteredClients,
-      filteredClients.length / 5
-    );
-    // console.log("Clients list", clients);
-    // const m = Math.floor(clients.length / 2);
-    // const [leftSide, rightSide] = [
-    //   clients.slice(0, m),
-    //   clients.slice(m, clients.length),
-    // ];
-    // Notifications.scheduleNotificationAsync({
-    //   content: {
-    //     title: "My first local notification",
-    //     body: "this is the first local notification we are sending!",
-    //     data: userInfo,
-    //   },
-    //   trigger: {
-    //     seconds: 6,
-    //   },
-    // });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[0],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: "Nueva Promocion!",
-        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
-      }),
+    // var splitClients = splitArrayIntoChunksOfLen(
+    //   filteredClients,
+    //   filteredClients.length / 5
+    // );
+
+    filteredClients.forEach((element) => {
+      fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: element,
+          sound: "default",
+          // data: { extraData: scannedUser },
+          title: "Nueva Promocion!",
+          body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
+        }),
+      });
     });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[1],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: "Nueva Promocion!",
-        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
-      }),
-    });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[2],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: "Nueva Promocion!",
-        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
-      }),
-    });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[3],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: "Nueva Promocion!",
-        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
-      }),
-    });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[4],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: "Nueva Promocion!",
-        body: `Tenemos una nueva promocion! Abrir la app para ver los detallas`,
-      }),
-    });
-  };
+
 
   const clientNotificationHandler = async () => {
     await storeNotification(notifyTitle, notifySubtitle);
@@ -376,100 +303,23 @@ const InformationScreen = ({ navigation }) => {
     const filteredClients = clients.filter(
       (element) => ![undefined].includes(element)
     );
-    var splitClients = splitArrayIntoChunksOfLen(
-      filteredClients,
-      filteredClients.length / 5
-    );
 
-    // console.log("Clients list", clients);
-    // const m = Math.floor(clients.length / 3);
-    // const n = Math.floor(clients.length / 3);
-    // const [leftSide, middleSide, rightSide] = [
-    //   clients.slice(0, m),
-    //   clients.slice(leftSide, n),
-    //   clients.slice(middleSide, clients.length),
-    // ];
-
-    // console.log(leftSide);
-    // console.log(middleSide);
-    // console.log(rightSide.length);
-
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[0],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: `${notifyTitle}`,
-        body: `${notifySubtitle}`,
-      }),
-    });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[1],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: `${notifyTitle}`,
-        body: `${notifySubtitle}`,
-      }),
-    });
-
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[2],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: `${notifyTitle}`,
-        body: `${notifySubtitle}`,
-      }),
-    });
-
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[3],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: `${notifyTitle}`,
-        body: `${notifySubtitle}`,
-      }),
-    });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: splitClients[4],
-        sound: "default",
-        // data: { extraData: scannedUser },
-        title: `${notifyTitle}`,
-        body: `${notifySubtitle}`,
-      }),
+    filteredClients.forEach((element) => {
+      fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: element,
+          sound: "default",
+          // data: { extraData: scannedUser },
+          title: `${notifyTitle}`,
+          body: `${notifySubtitle}`,
+        }),
+      });
     });
   };
 

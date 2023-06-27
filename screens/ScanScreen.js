@@ -75,31 +75,28 @@ const ScanScreen = ({ navigation, route }) => {
 
   const triggerNotificationHandler = (scannedUser) => {
     const coaches = coachList.map((code) => code.expoPushToken);
-    console.log("cheses", coaches);
-    // Notifications.scheduleNotificationAsync({
-    //   content: {
-    //     title: "My first local notification",
-    //     body: "this is the first local notification we are sending!",
-    //     data: userInfo,
-    //   },
-    //   trigger: {
-    //     seconds: 6,
-    //   },
-    // });
-    fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: coaches,
-        sound: "default",
-        data: { extraData: scannedUser },
-        title: "Nuevo inicio de sesion",
-        body: `${scannedUser.FirstName} acabo de iniciar sesion`,
-      }),
+
+    const filteredCoaches = coaches.filter(
+      (element) => ![undefined].includes(element)
+    );
+    console.log("cheses", filteredCoaches);
+
+    filteredCoaches.forEach((element) => {
+      fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: element,
+          sound: "default",
+          data: { extraData: scannedUser },
+          title: "Nuevo inicio de sesion",
+          body: `${scannedUser.FirstName} acabo de iniciar sesion`,
+        }),
+      });
     });
   };
 
