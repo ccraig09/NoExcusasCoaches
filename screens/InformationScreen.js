@@ -286,7 +286,7 @@ const InformationScreen = ({ navigation }) => {
         }),
       });
     });
-
+  };
 
   const clientNotificationHandler = async () => {
     await storeNotification(notifyTitle, notifySubtitle);
