@@ -69,30 +69,28 @@ const AddVideoScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.TitleBar}></View>
-        <Subtitle>{"Entrenamientos".toUpperCase()}</Subtitle>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={fitnessClasses}
-          renderItem={(itemData) => (
-            <ClassItem
-              image={itemData.item.Image}
-              title={itemData.item.Title}
-              logo={itemData.item.logo}
-              caption={itemData.item.Caption}
-              subtitle={itemData.item.Subtitle}
-              onClassClick={() => {
-                navigation.navigate("SectionScreen", {
-                  classId: itemData.item.key,
-                  classes: fitnessClasses,
-                });
-              }}
-            />
-          )}
-        />
-        <Subtitle>{"Deportes".toUpperCase()}</Subtitle>
+      <Subtitle>{"Entrenamientos".toUpperCase()}</Subtitle>
+      <FlatList
+        // horizontal={true}
+        showsVerticalScrollIndicator={false}
+        data={fitnessClasses}
+        renderItem={(itemData) => (
+          <ClassItem
+            image={itemData.item.Image}
+            title={itemData.item.Title}
+            logo={itemData.item.logo}
+            caption={itemData.item.Caption}
+            subtitle={itemData.item.Subtitle}
+            onClassClick={() => {
+              navigation.navigate("SectionScreen", {
+                classId: itemData.item.key,
+                classes: fitnessClasses,
+              });
+            }}
+          />
+        )}
+      />
+      {/* <Subtitle>{"Deportes".toUpperCase()}</Subtitle>
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
@@ -135,8 +133,7 @@ const AddVideoScreen = ({ navigation }) => {
               }}
             />
           )}
-        />
-      </ScrollView>
+        /> */}
     </View>
   );
 };

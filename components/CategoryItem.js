@@ -26,23 +26,7 @@ const CategoryItem = (props) => {
       <View style={styles.product}>
         <View style={styles.touchable}>
           <TouchableCmp onPress={props.onClassClick} useForeground>
-            <View>
-              <View style={styles.imageContainer}>
-                <Image style={styles.image} source={{ uri: props.image }} />
-              </View>
-              {/* <View style={styles.details}> */}
-              {/* <Image style={styles.logo} source={require(logoimg)} /> */}
-              <View style={styles.wrapper}>
-                <View style={styles.levelWrapper}>
-                  <Text style={styles.subtitle}>{props.subtitle}</Text>
-                  <Text style={styles.caption}>Tiempo: {props.time}</Text>
-                </View>
-                <View style={styles.level}>
-                  <Text style={styles.difficulty}> - {props.difficulty}</Text>
-                </View>
-              </View>
-              {/* </View> */}
-            </View>
+            <Image style={styles.image} source={{ uri: props.image }} />
           </TouchableCmp>
         </View>
       </View>

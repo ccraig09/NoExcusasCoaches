@@ -52,7 +52,6 @@ const ClassItem = (props) => {
 
 const styles = StyleSheet.create({
   product: {
-    width: 315,
     height: 380,
     shadowColor: "blue",
     shadowOpacity: 0.26,

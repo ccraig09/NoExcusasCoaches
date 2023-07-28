@@ -26,7 +26,7 @@ const UploadScreen = ({ route, navigation }) => {
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [difficulty, setDifficulty] = useState("");
-  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState(null);
   const [image, setImage] = useState(null);
   const [curentLevels, setCurentLevels] = useState(classes);
@@ -86,15 +86,15 @@ const UploadScreen = ({ route, navigation }) => {
   };
 
   const submitHandler = async () => {
-    let videoUrl = await uploadVideo();
-    console.log("video?", videoUrl);
+    // let videoUrl = await uploadVideo();
+    // console.log("video?", videoUrl);
     const newVideo = [
       {
-        Title: title,
-        Time: time,
-        Difficulty: difficulty,
+        // Title: title,
+        // Time: time,
+        // Difficulty: difficulty,
         coverImg: image,
-        url: videoUrl,
+        url: url,
       },
     ];
 
@@ -234,27 +234,27 @@ const UploadScreen = ({ route, navigation }) => {
           style={styles.checkbox}
           
         /> */}
-        <CheckBox
+        {/* <CheckBox
           title="Calentamiento?"
           iconRight
           checked={checked}
           onPress={() => {
             setChecked(!checked);
           }}
-        />
+        /> */}
         <View style={styles.action}>
           <Input
-            label="Titulo"
+            label="Enlace"
             leftIcon={{ type: "font-awesome", name: "edit" }}
-            placeholder="Titulo"
+            placeholder="Enlace"
             placeholderTextColor="#666666"
             style={styles.textInput}
-            value={title}
-            onChangeText={(text) => setTitle(text)}
+            value={url}
+            onChangeText={(text) => setUrl(text)}
             autoCorrect={false}
           />
         </View>
-        <View style={styles.action}>
+        {/* <View style={styles.action}>
           <Input
             label="Tiempo"
             leftIcon={{ type: "font-awesome", name: "clock-o" }}
@@ -277,15 +277,15 @@ const UploadScreen = ({ route, navigation }) => {
             onChangeText={(text) => setDifficulty(text)}
             autoCorrect={false}
           />
-        </View>
+        </View> */}
 
-        <Button
+        {/* <Button
           title={"Elegir Video"}
           onPress={() => {
             chooseVideoFromLibrary();
           }}
         />
-        <Text>{videoUrl}</Text>
+        <Text>{videoUrl}</Text> */}
         <Button
           title={"Elegir Imagen"}
           onPress={() => {

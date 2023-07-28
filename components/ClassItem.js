@@ -25,25 +25,7 @@ const ClassItem = (props) => {
     <View style={styles.product}>
       <View style={styles.touchable}>
         <TouchableCmp onPress={props.onClassClick} useForeground>
-          <View>
-            <View style={styles.imageContainer}>
-              <Image style={styles.image} source={{ uri: props.image }} />
-              {/* <Text style={styles.cardTitle}>{props.title}</Text> */}
-            </View>
-            <View style={styles.details}>
-              <Image
-                style={styles.logo}
-                source={require("../assets/icon-noexlogo.png")}
-              />
-              <View style={styles.wrapper}>
-                <Text style={styles.caption}>{props.title}</Text>
-                {/* <Text style={styles.caption}>Proximamente!</Text> */}
-                {/* <Text style={styles.subtitle}>{props.subtitle}</Text> */}
-                {/* <Text style={styles.subtitle}>Proximamente!</Text> */}
-                {/* <Text style={styles.subtitle}>Estar atentos!</Text> */}
-              </View>
-            </View>
-          </View>
+          <Image style={styles.image} source={{ uri: props.image }} />
         </TouchableCmp>
       </View>
     </View>
@@ -52,8 +34,8 @@ const ClassItem = (props) => {
 
 const styles = StyleSheet.create({
   product: {
-    width: 215,
-    height: 180,
+    width: 350,
+    height: 300,
     shadowColor: "black",
     shadowOpacity: 0.26,
     shadowOffset: { width: 0, height: 2 },
@@ -74,19 +56,19 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
   },
-  imageContainer: {
-    width: "100%",
-    height: 140,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-    overflow: "hidden",
-  },
+  // imageContainer: {
+  //   width: "100%",
+  //   height: 140,
+  //   borderTopLeftRadius: 14,
+  //   borderTopRightRadius: 14,
+  //   overflow: "hidden",
+  // },
   image: {
     width: "100%",
     height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
+    // position: "absolute",
+    // top: 0,
+    // left: 0,
   },
   cardTitle: {
     color: Colors.noExprimary,

@@ -122,32 +122,33 @@ const ClientDetailsScreen = ({ route, navigation }) => {
     //map out details?
     {
       title: "Plan:",
-      data: selectedClient.plan,
+      data: selectedClient?.plan,
     },
     {
       title: "Fecha de inicio:",
-      data: selectedClient.startDate,
+      data: selectedClient?.startDate,
     },
     {
       title: "Fecha de vencimiento:",
-      data: selectedClient.endDate,
+      data: selectedClient?.endDate,
     },
     {
       title: "Notas:",
-      data: selectedClient.notes,
+      data: selectedClient?.notes,
     },
     {
       title: "Metas:",
-      data: selectedClient.goal,
+      data: selectedClient?.goal,
     },
     {
       title: "Oficio:",
-      data: selectedClient.sport,
+      data: selectedClient?.sport,
     },
     {
       title: "History clinica:",
-      data: selectedClient.history,
+      data: selectedClient?.history,
     },
+    { title: "Contraseña:", data: selectedClient?.password },
   ];
 
   const selectEvalHandler = (id, title, time) => {
