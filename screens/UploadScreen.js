@@ -5,6 +5,7 @@ import {
   Alert,
   View,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import React, { useState, useContext, useEffect } from "react";
 import { CheckBox, Input } from "react-native-elements";
@@ -15,6 +16,7 @@ import {
   ref,
   uploadBytes,
   uploadBytesResumable,
+  getDownloadURL,
 } from "firebase/storage";
 import { AuthContext } from "../navigation/AuthProvider";
 
@@ -29,6 +31,7 @@ const UploadScreen = ({ route, navigation }) => {
   const [url, setUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState(null);
   const [image, setImage] = useState(null);
+  const [imageShow, setImageShow] = useState(null);
   const [curentLevels, setCurentLevels] = useState(classes);
   console.log("logging levels", classes);
   const storage = getStorage();
@@ -78,16 +81,18 @@ const UploadScreen = ({ route, navigation }) => {
       aspect: [4, 3],
       quality: 0.7,
     });
-    console.log(result);
+    console.log(">>>> assets", result.assets[0].uri);
 
-    if (!result.cancelled) {
-      setImage(result.uri);
+    if (!result.canceled) {
+      setImageShow(result.assets[0].uri);
+      await uploadImage(result.assets[0].uri);
     }
   };
 
   const submitHandler = async () => {
     // let videoUrl = await uploadVideo();
     // console.log("video?", videoUrl);
+    console.log(">>>dbfotoimg"), image;
     const newVideo = [
       {
         // Title: title,
@@ -103,20 +108,21 @@ const UploadScreen = ({ route, navigation }) => {
     //   triggerNotificationHandler();
     // }
     Alert.alert(`Video Subido!`, `Tu video se ha subido exitosamente!`);
+    navigation.navigate("AddVideoScreen");
   };
 
-  const uploadImage = async () => {
-    if (image == null) {
+  const uploadImage = async (photo) => {
+    if (photo == null) {
       return null;
     }
-    // const uploadUri = image;
-    const response = await fetch(image);
+    // const uploadUri = photo;
+    const response = await fetch(photo);
     const blob = await response.blob();
     // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
 
     // setUploading(true);
     // setTransferred(0);
-    const storageRef = ref(storage, "TrainingImages/" + title);
+    const storageRef = ref(storage, "TrainingImages/" + image);
 
     // const storageRef = firebase
     //   .storage()
@@ -126,32 +132,36 @@ const UploadScreen = ({ route, navigation }) => {
     // const task = storageRef.put(blob);
     const task = uploadBytes(storageRef, blob).then((snapshot) => {
       console.log("Uploaded a blob or file!");
+
+      // Set transferred state
+      // task.on("state_changed", (taskSnapshot) => {
+      //   console.log(
+      //     `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
+      //   );
+      //   setTransferred(
+      //     (
+      //       (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+      //       100
+      //     ).toFixed(0)
+      //   );
+      // });
+
+      try {
+        task;
+
+        const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          return setImage(downloadURL);
+        });
+
+        setUploading(false);
+
+        return url;
+      } catch (e) {
+        console.log(e);
+        return null;
+      }
     });
-    // Set transferred state
-    // task.on("state_changed", (taskSnapshot) => {
-    //   console.log(
-    //     `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
-    //   );
-    //   setTransferred(
-    //     (
-    //       (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-    //       100
-    //     ).toFixed(0)
-    //   );
-    // });
-
-    try {
-      await task;
-
-      const url = await storageRef.getDownloadURL();
-
-      setUploading(false);
-
-      return url;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
   };
 
   const uploadVideo = async () => {
@@ -292,7 +302,9 @@ const UploadScreen = ({ route, navigation }) => {
             choosePhotoFromLibrary();
           }}
         />
-        <Text>{image}</Text>
+        <View style={styles.imgContainer}>
+          <Image style={styles.image} source={{ uri: imageShow }} />
+        </View>
         {uploading && (
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Text>{transferred}% Completado</Text>
@@ -300,6 +312,7 @@ const UploadScreen = ({ route, navigation }) => {
           </View>
         )}
         <Button
+          disabled={!url}
           title={"Subir"}
           onPress={() => {
             submitHandler();
@@ -318,6 +331,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  imgContainer: {
+    height: 150,
+    width: 150,
+    alignSelf: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
   },
 
   action: {

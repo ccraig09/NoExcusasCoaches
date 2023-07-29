@@ -652,7 +652,7 @@ export const AuthProvider = ({ children }) => {
           }
         },
         uploadTrainingVideo: async (data, classId) => {
-          // console.log(promoData);
+          console.log(">>>>fb data", data, classId);
           try {
             await dbClasses.doc(classId).update(
               {

@@ -11,9 +11,11 @@ const SectionScreen = ({ route, navigation }) => {
   const data = data1[0]?.Levels;
   console.log("section", data1);
   //   setLevel1(data);
+  console.log(">>data", data);
+
   return (
     <View style={styles.FlatList}>
-      <Text
+      {/* <Text
         style={{
           fontWeight: "bold",
           fontSize: 25,
@@ -22,7 +24,7 @@ const SectionScreen = ({ route, navigation }) => {
         }}
       >
         {data1[0].Title}
-      </Text>
+      </Text> */}
       <Button
         title={"Agregar video"}
         onPress={() => {
