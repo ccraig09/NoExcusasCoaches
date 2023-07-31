@@ -160,7 +160,7 @@ const EditClientScreen = ({ navigation, route }) => {
     });
     console.log(result);
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
       actionSheetRef.current?.hide();
     }
@@ -176,7 +176,7 @@ const EditClientScreen = ({ navigation, route }) => {
     });
     console.log(result);
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
       actionSheetRef.current?.hide();
     }

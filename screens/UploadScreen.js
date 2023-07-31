@@ -120,7 +120,7 @@ const UploadScreen = ({ route, navigation }) => {
     const blob = await response.blob();
     // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
 
-    // setUploading(true);
+    setUploading(true);
     // setTransferred(0);
     const storageRef = ref(storage, "TrainingImages/" + image);
 
@@ -307,12 +307,12 @@ const UploadScreen = ({ route, navigation }) => {
         </View>
         {uploading && (
           <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <Text>{transferred}% Completado</Text>
+            {/* <Text>{transferred}% Completado</Text> */}
             <ActivityIndicator size="large" color="0000ff" />
           </View>
         )}
         <Button
-          disabled={!url}
+          disabled={!url || !image}
           title={"Subir"}
           onPress={() => {
             submitHandler();

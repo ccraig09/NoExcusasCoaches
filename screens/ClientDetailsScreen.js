@@ -17,6 +17,7 @@ import {
   Alert,
   SafeAreaView,
   Dimensions,
+  ActivityIndicator,
   TouchableOpacity,
   Button,
 } from "react-native";
@@ -58,6 +59,7 @@ const ClientDetailsScreen = ({ route, navigation }) => {
   const [pdfLink, setPdfLink] = useState("");
   const [userEvals, setUserEvals] = useState([]);
   const [evalDateModal, setEvalDateModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const storage = getStorage();
   const moment = extendMoment(Moment);
@@ -163,39 +165,43 @@ const ClientDetailsScreen = ({ route, navigation }) => {
 
   const addPdf = async () => {
     let result = await DocumentPicker.getDocumentAsync({});
+    let b;
     if (result != null) {
       const r = await fetch(result.uri);
-      const b = await r.blob();
+      b = await r.blob();
       setFileName(result.name);
       setBlobFile(b);
     }
-    let pdfDoc = await uploadFile();
+    let pdfDoc = await uploadFile(b);
     console.log(">>>>>pdf doc", pdfDoc);
   };
 
-  const postPdf = async () => {
-    console.log("url", pdfLink);
-    await addPdfDoc(selectedClient, pdfLink);
+  const postPdf = async (pdfUrl) => {
+    console.log("url", pdfUrl);
+    await addPdfDoc(selectedClient, pdfUrl);
+    setUploading(false);
+
     Alert.alert("PDF Subido!", "El PDF se ha Subido exitosamente!");
   };
 
-  const uploadFile = async () => {
+  const uploadFile = async (file) => {
     const storageRef = ref(
       storage,
       "UserPDF/" + `${selectedClient.userId}/` + "PDFDoc"
     );
+    setUploading(true);
 
-    const task = uploadBytes(storageRef, blobFile).then((snapshot) => {
+    const task = uploadBytes(storageRef, file).then((snapshot) => {
       console.log("Uploaded a blob or file!");
       try {
         task;
 
-        const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+        getDownloadURL(snapshot.ref).then((downloadURL) => {
           console.log("File available at", downloadURL);
+          postPdf(downloadURL);
           setPdfDoc(downloadURL);
           return downloadURL;
         });
-        return url;
       } catch (e) {
         console.log(">>error:", e);
         return null;
@@ -393,10 +399,17 @@ const ClientDetailsScreen = ({ route, navigation }) => {
         <Button
           title={"Agregar Pdf"}
           onPress={() => {
-            setPdfModal(true);
+            addPdf();
+            // setPdfModal(true);
           }}
         />
-        {pdfModal && (
+        {uploading && (
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            {/* <Text>{transferred}% Completado</Text> */}
+            <ActivityIndicator size="large" color="black" />
+          </View>
+        )}
+        {/* {pdfModal && (
           <>
             <View style={styles.action}>
               <Input
@@ -432,7 +445,7 @@ const ClientDetailsScreen = ({ route, navigation }) => {
               <Text style={styles.panelButtonTitle}>Cancelar</Text>
             </TouchableOpacity>
           </>
-        )}
+        )} */}
       </View>
       <TouchableOpacity
         onPress={() => {
