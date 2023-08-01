@@ -44,8 +44,13 @@ import {
 } from "firebase/storage";
 
 const ClientDetailsScreen = ({ route, navigation }) => {
-  const { userNotificationReceipt, addPdfDoc, newEval, deleteEval } =
-    useContext(AuthContext);
+  const {
+    userNotificationReceipt,
+    addPdfDoc,
+    addDietDoc,
+    newEval,
+    deleteEval,
+  } = useContext(AuthContext);
 
   const { id, data } = route.params;
   const [notify, setNotify] = useState(false);
@@ -175,7 +180,6 @@ const ClientDetailsScreen = ({ route, navigation }) => {
     let pdfDoc = await uploadFile(b);
     console.log(">>>>>pdf doc", pdfDoc);
   };
-
   const postPdf = async (pdfUrl) => {
     console.log("url", pdfUrl);
     await addPdfDoc(selectedClient, pdfUrl);
@@ -183,7 +187,6 @@ const ClientDetailsScreen = ({ route, navigation }) => {
 
     Alert.alert("PDF Subido!", "El PDF se ha Subido exitosamente!");
   };
-
   const uploadFile = async (file) => {
     const storageRef = ref(
       storage,
@@ -199,6 +202,52 @@ const ClientDetailsScreen = ({ route, navigation }) => {
         getDownloadURL(snapshot.ref).then((downloadURL) => {
           console.log("File available at", downloadURL);
           postPdf(downloadURL);
+          setPdfDoc(downloadURL);
+          return downloadURL;
+        });
+      } catch (e) {
+        console.log(">>error:", e);
+        return null;
+      }
+    });
+  };
+
+  const addDiet = async () => {
+    let result = await DocumentPicker.getDocumentAsync({});
+    let b;
+    if (result != null) {
+      const r = await fetch(result.uri);
+      b = await r.blob();
+      setFileName(result.name);
+      setBlobFile(b);
+    }
+    let pdfDoc = await uploadDiet(b);
+    console.log(">>>>>pdf doc", pdfDoc);
+  };
+
+  const postDiet = async (pdfUrl) => {
+    console.log("url", pdfUrl);
+    await addDietDoc(selectedClient, pdfUrl);
+    setUploading(false);
+
+    Alert.alert("PDF Subido!", "El PDF se ha Subido exitosamente!");
+  };
+
+  const uploadDiet = async (file) => {
+    const storageRef = ref(
+      storage,
+      "UserDiet/" + `${selectedClient.userId}/` + "DietDoc"
+    );
+    setUploading(true);
+
+    const task = uploadBytes(storageRef, file).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+      try {
+        task;
+
+        getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+          postDiet(downloadURL);
           setPdfDoc(downloadURL);
           return downloadURL;
         });
@@ -397,9 +446,16 @@ const ClientDetailsScreen = ({ route, navigation }) => {
           Puntos Acumulados: {selectedClient.points}
         </Text>
         <Button
-          title={"Agregar Pdf"}
+          title={"Agregar Entrenamiento"}
           onPress={() => {
             addPdf();
+            // setPdfModal(true);
+          }}
+        />
+        <Button
+          title={"Agregar Plan de Alimentacion"}
+          onPress={() => {
+            addDiet();
             // setPdfModal(true);
           }}
         />

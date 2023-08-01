@@ -19,12 +19,14 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { AuthContext } from "../navigation/AuthProvider";
+import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
 
 const UploadScreen = ({ route, navigation }) => {
   const { classId, classes, classArrayIndex } = route.params;
   const { uploadTrainingVideo } = useContext(AuthContext);
   const [checked, setChecked] = useState(false);
   const [time, setTime] = useState("");
+  const [points, setPoints] = useState("");
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [difficulty, setDifficulty] = useState("");
@@ -33,7 +35,7 @@ const UploadScreen = ({ route, navigation }) => {
   const [image, setImage] = useState(null);
   const [imageShow, setImageShow] = useState(null);
   const [curentLevels, setCurentLevels] = useState(classes);
-  console.log("logging levels", classes);
+  // console.log("logging levels", classes);
   const storage = getStorage();
 
   useEffect(() => {
@@ -58,7 +60,6 @@ const UploadScreen = ({ route, navigation }) => {
     })();
   });
 
-  console.log("params", route.params);
   const chooseVideoFromLibrary = async () => {
     console.log("opening gallery");
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -100,6 +101,7 @@ const UploadScreen = ({ route, navigation }) => {
         // Difficulty: difficulty,
         coverImg: image,
         url: url,
+        points: points,
       },
     ];
 
@@ -116,13 +118,21 @@ const UploadScreen = ({ route, navigation }) => {
       return null;
     }
     // const uploadUri = photo;
+    console.log("checkpoint1");
     const response = await fetch(photo);
+    console.log("checkpoint2");
+
     const blob = await response.blob();
+    console.log("checkpoint3");
+
     // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
 
     setUploading(true);
+    console.log("checkpoint4");
+
     // setTransferred(0);
-    const storageRef = ref(storage, "TrainingImages/" + image);
+    const storageRef = ref(storage, "TrainingImages/" + photo);
+    console.log("checkpoint5");
 
     // const storageRef = firebase
     //   .storage()
@@ -131,6 +141,8 @@ const UploadScreen = ({ route, navigation }) => {
 
     // const task = storageRef.put(blob);
     const task = uploadBytes(storageRef, blob).then((snapshot) => {
+      console.log("checkpoint6");
+
       console.log("Uploaded a blob or file!");
 
       // Set transferred state
@@ -148,8 +160,11 @@ const UploadScreen = ({ route, navigation }) => {
 
       try {
         task;
+        console.log("checkpoint7");
 
         const url = getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log("checkpoint8");
+
           console.log("File available at", downloadURL);
           return setImage(downloadURL);
         });
@@ -264,6 +279,20 @@ const UploadScreen = ({ route, navigation }) => {
             autoCorrect={false}
           />
         </View>
+        <View style={styles.action}>
+          <Input
+            label="Puntos"
+            leftIcon={{ type: "font-awesome", name: "edit" }}
+            placeholder="Puntos"
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={points}
+            onChangeText={(text) => setPoints(text)}
+            autoCorrect={false}
+            keyboardType="number-pad"
+            returnKeyType="done"
+          />
+        </View>
         {/* <View style={styles.action}>
           <Input
             label="Tiempo"
@@ -308,7 +337,7 @@ const UploadScreen = ({ route, navigation }) => {
         {uploading && (
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             {/* <Text>{transferred}% Completado</Text> */}
-            <ActivityIndicator size="large" color="0000ff" />
+            <ActivityIndicator size="large" color="black" />
           </View>
         )}
         <Button

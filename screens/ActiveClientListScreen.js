@@ -743,8 +743,8 @@ const ActiveClientListScreen = ({ navigation }) => {
           /> */}
 
           <Subtitle>
-            {"Activos".toUpperCase()} ({" "}
-            {selectedIndex === 0 ? clientList.length : inactiveList.length} )
+            {selectedIndex === 0 ? "🔎 ACTIVOS" : "🔎 INACTIVOS".toUpperCase()}{" "}
+            ( {selectedIndex === 0 ? clientList.length : inactiveList.length} )
           </Subtitle>
           <FlatList
             onRefresh={() => {
