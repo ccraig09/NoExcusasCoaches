@@ -23,15 +23,16 @@ import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
 
 const UploadScreen = ({ route, navigation }) => {
   const { classId, classes, classArrayIndex } = route.params;
-  const { uploadTrainingVideo } = useContext(AuthContext);
+  const { uploadTrainingVideo, deleteTrainingVideo } = useContext(AuthContext);
   const [checked, setChecked] = useState(false);
   const [time, setTime] = useState("");
-  const [points, setPoints] = useState("");
+  const [points, setPoints] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [difficulty, setDifficulty] = useState("");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
   const [image, setImage] = useState(null);
   const [imageShow, setImageShow] = useState(null);
   const [curentLevels, setCurentLevels] = useState(classes);
@@ -40,7 +41,15 @@ const UploadScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     setCurentLevels(classes);
+    if (!!classes[classArrayIndex]) {
+      setUrl(classes[classArrayIndex].url);
+      setPoints(classes[classArrayIndex].points);
+      setImageShow(classes[classArrayIndex].coverImg);
+    }
+    setIsEdit(!!classes[classArrayIndex]);
     console.log("effect classes", classes);
+    console.log("effect id", classId);
+    console.log("effect index", !!classes[classArrayIndex]);
   }, []);
 
   useEffect(() => {
@@ -131,7 +140,7 @@ const UploadScreen = ({ route, navigation }) => {
     console.log("checkpoint4");
 
     // setTransferred(0);
-    const storageRef = ref(storage, "TrainingImages/" + photo);
+    const storageRef = ref(storage, "TrainingImages/" + url.split("/").pop());
     console.log("checkpoint5");
 
     // const storageRef = firebase
@@ -249,7 +258,39 @@ const UploadScreen = ({ route, navigation }) => {
       return null;
     }
   };
-
+  const deleteVideoHandler = () => {
+    const newVideo = [
+      {
+        // Title: title,
+        // Time: time,
+        // Difficulty: difficulty,
+        coverImg: image,
+        url: url,
+        points: points,
+      },
+    ];
+    Alert.alert("Estas seguro?", "", [
+      {
+        text: "No",
+        style: "default",
+      },
+      {
+        text: "Si",
+        style: "destructive",
+        onPress: async () => {
+          setUploading(true);
+          await deleteTrainingVideo(classId, url, classArrayIndex);
+          setUploading(false);
+          // deleteUser(user)
+          //   .then(() => {})
+          //   .catch((error) => {
+          //     throw error;
+          //   });
+          navigation.navigate("AddVideoScreen");
+        },
+      },
+    ]);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.checkboxContainer}>
@@ -317,7 +358,6 @@ const UploadScreen = ({ route, navigation }) => {
             autoCorrect={false}
           />
         </View> */}
-
         {/* <Button
           title={"Elegir Video"}
           onPress={() => {
@@ -326,6 +366,7 @@ const UploadScreen = ({ route, navigation }) => {
         />
         <Text>{videoUrl}</Text> */}
         <Button
+          disabled={!url}
           title={"Elegir Imagen"}
           onPress={() => {
             choosePhotoFromLibrary();
@@ -341,13 +382,36 @@ const UploadScreen = ({ route, navigation }) => {
           </View>
         )}
         <Button
-          disabled={!url || !image}
+          disabled={!url || !imageShow}
           title={"Subir"}
           onPress={() => {
             submitHandler();
           }}
         />
       </View>
+      {isEdit && (
+        <View style={{ position: "absolute", bottom: 0, marginBottom: 20 }}>
+          <Button
+            color={"red"}
+            title="Borrar Video"
+            onPress={() => {
+              Alert.alert("Borrar Video?", "", [
+                {
+                  text: "No",
+                  style: "default",
+                },
+                {
+                  text: "Si",
+                  style: "destructive",
+                  onPress: () => {
+                    deleteVideoHandler();
+                  },
+                },
+              ]);
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };

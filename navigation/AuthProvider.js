@@ -800,6 +800,23 @@ export const AuthProvider = ({ children }) => {
             console.log(errorMes);
           }
         },
+        deleteTrainingVideo: async (docId, url, index) => {
+          console.log("Deleting Video index", index.toString());
+          const deleteRef = ref(storage, `TrainingImages/${url}`);
+
+          try {
+            await deleteObject(deleteRef).then(() => {
+              dbClasses.doc(docId).update({
+                Levels: firebase.firestore.FieldValue.arrayRemove("2"),
+              });
+            });
+          } catch (e) {
+            const errorMes = firebaseErrors[e.code];
+            alert(e);
+            console.log(e);
+          }
+        },
+
         deletePromoImage: async (key, title) => {
           console.log("Deleting Image", title);
           const desertRef = ref(storage, `PromoImages/${title}/PromoImage`);

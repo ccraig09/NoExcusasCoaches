@@ -39,7 +39,7 @@ const SectionScreen = ({ route, navigation }) => {
         showsHorizontalScrollIndicator={false}
         data={data}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={(itemData) => (
+        renderItem={(itemData, index) => (
           <CategoryItem
             image={itemData.item.coverImg}
             title={itemData.item.Title}
