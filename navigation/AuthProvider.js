@@ -654,9 +654,9 @@ export const AuthProvider = ({ children }) => {
         uploadTrainingVideo: async (data, classId) => {
           console.log(">>>>fb data", data, classId);
           try {
-            await dbClasses.doc(classId).update(
+            await dbClasses.doc(classId).set(
               {
-                Levels: firebase.firestore.FieldValue.arrayUnion(...data),
+                Levels: data,
                 // timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               },
               { merge: true }

@@ -22,7 +22,7 @@ import { AuthContext } from "../navigation/AuthProvider";
 import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
 
 const UploadScreen = ({ route, navigation }) => {
-  const { classId, classes, classArrayIndex } = route.params;
+  const { classId, classes, classArrayIndex, video } = route.params;
   const { uploadTrainingVideo } = useContext(AuthContext);
   const [checked, setChecked] = useState(false);
   const [time, setTime] = useState("");
@@ -32,15 +32,23 @@ const UploadScreen = ({ route, navigation }) => {
   const [difficulty, setDifficulty] = useState("");
   const [url, setUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState(null);
+  const [title, setTitle] = useState(null);
   const [image, setImage] = useState(null);
   const [imageShow, setImageShow] = useState(null);
-  const [curentLevels, setCurentLevels] = useState(classes);
-  // console.log("logging levels", classes);
+  const [curentLevels, setCurentLevels] = useState(null);
   const storage = getStorage();
 
   useEffect(() => {
     setCurentLevels(classes);
-    console.log("effect classes", classes);
+    let currentClass;
+    if (video) {
+      setTitle(video.title);
+      setImageShow(video.coverImg);
+      setImage(video.coverImg);
+      setUrl(video.url);
+      setPoints(video.points);
+    }
+    console.log("effect classes", video);
   }, []);
 
   useEffect(() => {
@@ -91,26 +99,55 @@ const UploadScreen = ({ route, navigation }) => {
   };
 
   const submitHandler = async () => {
-    // let videoUrl = await uploadVideo();
-    // console.log("video?", videoUrl);
-    console.log(">>>dbfotoimg"), image;
     const newVideo = [
       {
-        // Title: title,
-        // Time: time,
-        // Difficulty: difficulty,
+        Title: title,
         coverImg: image,
         url: url,
         points: points,
       },
     ];
+    let updatedArrary;
+    if (video) {
+      updatedArrary = curentLevels.map((item, i) => {
+        if (i === classArrayIndex) {
+          console.log("index ran");
+          return newVideo[0];
+        }
+        console.log("vid ran");
+        return item;
+      });
+    } else {
+      updatedArrary = [...curentLevels, newVideo[0]];
+      console.log("we here");
+    }
 
-    uploadTrainingVideo(newVideo, classId);
-    // if (type === "Promocion") {
-    //   triggerNotificationHandler();
-    // }
+    uploadTrainingVideo(updatedArrary, classId);
     Alert.alert(`Video Subido!`, `Tu video se ha subido exitosamente!`);
-    navigation.navigate("AddVideoScreen");
+    navigation.navigate("Information");
+  };
+
+  const onDelete = async () => {
+    const deleteHandler = () => {
+      const updatedArrary = curentLevels.filter(
+        (item, i) => i !== classArrayIndex
+      );
+      uploadTrainingVideo(updatedArrary, classId);
+      Alert.alert(`Video Borrado`, `Tu video se ha borrado exitosamente!`);
+      navigation.navigate("Information");
+    };
+
+    Alert.alert("¿Estás seguro que quieres borrar este vídeo?", "", [
+      {
+        text: "Borrar",
+        onPress: () => deleteHandler(),
+        style: "destructive",
+      },
+      {
+        text: "Cancelar",
+        onPress: () => console.log("Cancel Pressed"),
+      },
+    ]);
   };
 
   const uploadImage = async (photo) => {
@@ -179,76 +216,76 @@ const UploadScreen = ({ route, navigation }) => {
     });
   };
 
-  const uploadVideo = async () => {
-    if (videoUrl === null) {
-      return null;
-    }
-    // const uploadUri = image;
-    const response = await fetch(videoUrl);
-    const blob = await response.blob();
-    // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
+  // const uploadVideo = async () => {
+  //   if (videoUrl === null) {
+  //     return null;
+  //   }
+  //   // const uploadUri = image;
+  //   const response = await fetch(videoUrl);
+  //   const blob = await response.blob();
+  //   // let fileName = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
 
-    setUploading(true);
-    setTransferred(0);
+  //   setUploading(true);
+  //   setTransferred(0);
 
-    const storageRef = ref(storage, "TrainingVideos/" + title);
+  //   const storageRef = ref(storage, "TrainingVideos/" + title);
 
-    // const storageRef = firebase
-    //   .storage()
-    //   .ref()
-    //   .child("TrainingVideos/" + title);
+  //   // const storageRef = firebase
+  //   //   .storage()
+  //   //   .ref()
+  //   //   .child("TrainingVideos/" + title);
 
-    // const task = storageRef.put(blob);
+  //   // const task = storageRef.put(blob);
 
-    const task = uploadBytes(storageRef, blob).then((snapshot) => {
-      console.log("Uploaded a blob or file!", snapshot);
-    });
+  //   const task = uploadBytes(storageRef, blob).then((snapshot) => {
+  //     console.log("Uploaded a blob or file!", snapshot);
+  //   });
 
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+  //   const uploadTask = uploadBytesResumable(storageRef, blob);
 
-    uploadTask.on("state_changed", (snapshot) => {
-      // Observe state change events such as progress, pause, and resume
-      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      setTransferred(progress);
-      console.log("Upload is " + progress + "% done");
-      switch (snapshot.state) {
-        case "paused":
-          console.log("Upload is paused");
-          break;
-        case "running":
-          console.log("Upload is running");
-          break;
-      }
-    });
+  //   uploadTask.on("state_changed", (snapshot) => {
+  //     // Observe state change events such as progress, pause, and resume
+  //     // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+  //     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //     setTransferred(progress);
+  //     console.log("Upload is " + progress + "% done");
+  //     switch (snapshot.state) {
+  //       case "paused":
+  //         console.log("Upload is paused");
+  //         break;
+  //       case "running":
+  //         console.log("Upload is running");
+  //         break;
+  //     }
+  //   });
 
-    // Set transferred state
-    // task.on("state_changed", (taskSnapshot) => {
-    //   console.log(
-    //     `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
-    //   );
-    //   setTransferred(
-    //     (
-    //       (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-    //       100
-    //     ).toFixed(0)
-    //   );
-    // });
+  //   // Set transferred state
+  //   // task.on("state_changed", (taskSnapshot) => {
+  //   //   console.log(
+  //   //     `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`
+  //   //   );
+  //   //   setTransferred(
+  //   //     (
+  //   //       (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+  //   //       100
+  //   //     ).toFixed(0)
+  //   //   );
+  //   // });
 
-    try {
-      await task;
+  //   try {
+  //     await task;
 
-      const url = await storageRef.getDownloadURL();
-      console.log("downloadurl", url);
+  //     const url = await storageRef.getDownloadURL();
+  //     console.log("downloadurl", url);
 
-      setUploading(false);
+  //     setUploading(false);
 
-      return url;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  };
+  //     return url;
+  //   } catch (e) {
+  //     console.log(e);
+  //     return null;
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
@@ -267,6 +304,18 @@ const UploadScreen = ({ route, navigation }) => {
             setChecked(!checked);
           }}
         /> */}
+        <View style={styles.action}>
+          <Input
+            label="Titulo"
+            leftIcon={{ type: "font-awesome", name: "edit" }}
+            placeholder="Titulo"
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            value={title}
+            onChangeText={(text) => setTitle(text)}
+            autoCorrect={false}
+          />
+        </View>
         <View style={styles.action}>
           <Input
             label="Enlace"
@@ -341,12 +390,21 @@ const UploadScreen = ({ route, navigation }) => {
           </View>
         )}
         <Button
-          disabled={!url || !image}
+          disabled={!title || !url || !image}
           title={"Subir"}
           onPress={() => {
             submitHandler();
           }}
         />
+        <View style={{ marginTop: 30 }}>
+          <Button
+            title={"Borrar"}
+            color={"red"}
+            onPress={() => {
+              onDelete();
+            }}
+          />
+        </View>
       </View>
     </View>
   );
@@ -359,7 +417,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
+    paddingTop: 20,
+    // justifyContent: "center",
   },
   imgContainer: {
     height: 150,
