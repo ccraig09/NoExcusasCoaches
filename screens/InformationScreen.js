@@ -782,6 +782,7 @@ const InformationScreen = ({ navigation }) => {
             ))}
         </View>
         <Subtitle>{"Promociones".toUpperCase()}</Subtitle>
+
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
@@ -806,31 +807,30 @@ const InformationScreen = ({ navigation }) => {
           )}
         />
         <Subtitle>{"Premios".toUpperCase()}</Subtitle>
-        <View style={{ height: 400 }}>
-          <FlatList
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            data={premio3erlist}
-            renderItem={(itemData) => (
-              <PromoItem
-                image={itemData.item.userImg}
-                title={itemData.item.Title}
-                logo={itemData.item.logo}
-                caption={itemData.item.Caption}
-                extension={itemData.item.Extension}
-                subtitle={itemData.item.Subtitle}
-                onClassClick={() => {
-                  navigation.navigate("PromoDetail", {
-                    promoData: itemData.item,
-                  });
-                }}
-                onLongPress={() => {
-                  deletePromoHandler(itemData.item.key, itemData.item.Caption);
-                }}
-              />
-            )}
-          />
-        </View>
+
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={premio3erlist}
+          renderItem={(itemData) => (
+            <PromoItem
+              image={itemData.item.userImg}
+              title={itemData.item.Title}
+              logo={itemData.item.logo}
+              caption={itemData.item.Caption}
+              extension={itemData.item.Extension}
+              subtitle={itemData.item.Subtitle}
+              onClassClick={() => {
+                navigation.navigate("PromoDetail", {
+                  promoData: itemData.item,
+                });
+              }}
+              onLongPress={() => {
+                deletePromoHandler(itemData.item.key, itemData.item.Caption);
+              }}
+            />
+          )}
+        />
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
