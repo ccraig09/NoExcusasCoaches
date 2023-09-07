@@ -43,6 +43,7 @@ import {
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../constants/Colors";
 import { useFocusEffect } from "@react-navigation/native";
+import InfoButton from "../components/UI/InfoButton";
 
 const actionSheetRef = createRef();
 const InformationScreen = ({ navigation }) => {
@@ -505,8 +506,17 @@ const InformationScreen = ({ navigation }) => {
         </ActionSheet>
 
         {image == null && (
-          <View>
-            <Button
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+              // width: "100%",
+              // height: "40%",
+            }}
+          >
+            <InfoButton
               title="Subir Promocion o Premio"
               onPress={() => {
                 Alert.alert("Elige un opcion?", "", [
@@ -540,26 +550,26 @@ const InformationScreen = ({ navigation }) => {
                   },
                 ]);
               }}
-            />
-            {/* <Button
+            ></InfoButton>
+            {/* <InfoButton>
               title="test"
               onPress={() => {
                 clientNotification();
               }}
-            /> */}
-            <Button
+             </InfoButton> */}
+            <InfoButton
               title="Enviar Notificacion"
               onPress={() => {
                 setNotify(true);
               }}
-            />
-            <Button
+            ></InfoButton>
+            <InfoButton
               title="Agregar Video"
               onPress={() => {
                 navigation.navigate("AddVideoScreen");
               }}
-            />
-            <Button
+            ></InfoButton>
+            <InfoButton
               title="Subir Contacto info"
               onPress={() => {
                 Alert.alert(
@@ -582,7 +592,7 @@ const InformationScreen = ({ navigation }) => {
                   ]
                 );
               }}
-            />
+            ></InfoButton>
           </View>
         )}
         <View
@@ -593,14 +603,16 @@ const InformationScreen = ({ navigation }) => {
             justifyContent: "center",
             alignItems: "center",
             alignSelf: "center",
-            marginTop: 40,
+            marginTop: 10,
           }}
         >
-          <Image
-            source={{ uri: `${image}` }}
-            style={{ height: 200, width: 200 }}
-            imageStyle={{ borderRadius: 15 }}
-          ></Image>
+          {image && (
+            <Image
+              source={{ uri: `${image}` }}
+              style={{ height: 200, width: 200 }}
+              imageStyle={{ borderRadius: 15 }}
+            />
+          )}
           {notify && (
             <View>
               <View style={styles.action}>

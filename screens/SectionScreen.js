@@ -53,6 +53,12 @@ const SectionScreen = ({ route, navigation }) => {
               navigation.navigate("UploadScreen", {
                 classId: classId,
                 classes: data,
+                video: {
+                  title: itemData.item.Title,
+                  coverImg: itemData.item.coverImg,
+                  url:itemData.item.url,
+                  points:itemData.item.points
+                },
                 classArrayIndex: itemData.index,
               });
             }}
